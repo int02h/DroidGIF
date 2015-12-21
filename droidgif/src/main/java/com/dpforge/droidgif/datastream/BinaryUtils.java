@@ -9,4 +9,14 @@ class BinaryUtils {
 		is.read(data);
 		return new String(data);
 	}
+
+	static int readByte(final InputStream is) throws IOException {
+		return (is.read() & 0xFF);
+	}
+
+	static int readInt16(final InputStream is) throws IOException {
+		int low = (is.read() & 0xFF);
+		int high = (is.read() & 0xFF);
+		return (low + (high << 8)) & 0xFFFF;
+	}
 }

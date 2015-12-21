@@ -5,6 +5,7 @@ import java.io.InputStream;
 
 public class DataStream {
 	private final Header mHeader = new Header();
+	private final LogicalScreen mLogicalScreen = new LogicalScreen();
 
 	private DataStream() {
 	}
@@ -17,5 +18,6 @@ public class DataStream {
 
 	private void read(final InputStream is) throws IOException, InvalidDataStreamException {
 		mHeader.read(is);
+		mLogicalScreen.read(is);
 	}
 }
