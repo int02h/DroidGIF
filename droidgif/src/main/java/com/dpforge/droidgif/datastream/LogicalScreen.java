@@ -8,8 +8,8 @@ class LogicalScreen extends DataStreamEntity {
 	private int mHeight;
 	private boolean mHasGlobalColorTable;
 	private int mColorResolution;
-	private boolean isGlobalTableSorted;
-	private int mColorTableSize;
+	private boolean mIsGlobalTableSorted;
+	private int mGlobalColorTableSize;
 	private int mBackgroundColorIndex;
 	private int mPixelAspectRatio;
 
@@ -23,14 +23,14 @@ class LogicalScreen extends DataStreamEntity {
 		int flag = BinaryUtils.readByte(is);
 		mHasGlobalColorTable = ((flag & 0x80) == 0x80);
 		mColorResolution = ((flag & 0x70) >> 4);
-		isGlobalTableSorted = ((flag & 0x08) == 0x08);
-		mColorTableSize = (flag & 0x07);
+		mIsGlobalTableSorted = ((flag & 0x08) == 0x08);
+		mGlobalColorTableSize = (flag & 0x07);
 
 		mBackgroundColorIndex = BinaryUtils.readByte(is);
 		mPixelAspectRatio = BinaryUtils.readByte(is);
 
 		if (mHasGlobalColorTable) {
-			int size = (int) Math.pow(2, mColorTableSize + 1);
+			int size = (int) Math.pow(2, mGlobalColorTableSize + 1);
 			mGlobalColorTable = new ColorTable(size);
 			mGlobalColorTable.read(is);
 		}

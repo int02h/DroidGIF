@@ -2,10 +2,13 @@ package com.dpforge.droidgif.datastream;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DataStream {
 	private final Header mHeader = new Header();
 	private final LogicalScreen mLogicalScreen = new LogicalScreen();
+	private final List<DataStreamEntity> mData = new ArrayList<>();
 
 	private DataStream() {
 	}
@@ -22,11 +25,22 @@ public class DataStream {
 
 		int label;
 		while ((label = BinaryUtils.readByte(is)) != 0x3B) {
+			final DataStreamEntity entity;
 			switch (label) {
 				case ExtensionBlock.LABEL:
-					final ExtensionBlock extensionBlock = ExtensionBlock.readBlock(is);
+					entity = ExtensionBlock.readBlock(is);
 					break;
+				case TableBasedImage.LABEL:
+					entity = new TableBasedImage();
+					entity.read(is);
+					break;
+				default:
+					throw new InvalidDataStreamException(
+							InvalidDataStreamException.ERROR_UNSUPPORTED_BLOCK,
+							"Block label " + label
+					);
 			}
+			mData.add(entity);
 		}
 	}
 }
