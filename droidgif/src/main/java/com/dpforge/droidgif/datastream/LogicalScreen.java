@@ -3,7 +3,7 @@ package com.dpforge.droidgif.datastream;
 import java.io.IOException;
 import java.io.InputStream;
 
-class LogicalScreen extends DataStreamEntity {
+class LogicalScreen extends DataStreamBlock {
 	private int mWidth;
 	private int mHeight;
 	private boolean mHasGlobalColorTable;

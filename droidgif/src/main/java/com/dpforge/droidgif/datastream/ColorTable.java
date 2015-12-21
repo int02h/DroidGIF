@@ -3,7 +3,7 @@ package com.dpforge.droidgif.datastream;
 import java.io.IOException;
 import java.io.InputStream;
 
-class ColorTable extends DataStreamEntity {
+class ColorTable extends DataStreamBlock {
 	private final int mSize;
 	private final int[] mColors;
 

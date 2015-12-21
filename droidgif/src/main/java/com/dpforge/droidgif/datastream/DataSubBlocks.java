@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-class DataSubBlocks extends DataStreamEntity {
+class DataSubBlocks extends DataStreamBlock {
 	private byte[] mData;
 
 	@Override

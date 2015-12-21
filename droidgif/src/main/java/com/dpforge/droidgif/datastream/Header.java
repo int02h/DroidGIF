@@ -6,7 +6,7 @@ import java.io.InputStream;
 /**
  * Header in GIF data stream
  */
-class Header extends DataStreamEntity {
+class Header extends DataStreamBlock {
 	private final static String SIGNATURE = "GIF";
 
 	private String mVersion;

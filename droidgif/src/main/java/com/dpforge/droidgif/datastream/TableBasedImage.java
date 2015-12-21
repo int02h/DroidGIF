@@ -3,7 +3,7 @@ package com.dpforge.droidgif.datastream;
 import java.io.IOException;
 import java.io.InputStream;
 
-class TableBasedImage extends DataStreamEntity {
+class TableBasedImage extends DataStreamBlock {
 	final static int LABEL = 0x2C;
 
 	private int mLeft;

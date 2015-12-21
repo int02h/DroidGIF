@@ -8,7 +8,7 @@ import java.util.List;
 public class DataStream {
 	private final Header mHeader = new Header();
 	private final LogicalScreen mLogicalScreen = new LogicalScreen();
-	private final List<DataStreamEntity> mData = new ArrayList<>();
+	private final List<DataStreamBlock> mBlocks = new ArrayList<>();
 
 	private DataStream() {
 	}
@@ -25,14 +25,14 @@ public class DataStream {
 
 		int label;
 		while ((label = BinaryUtils.readByte(is)) != 0x3B) {
-			final DataStreamEntity entity;
+			final DataStreamBlock block;
 			switch (label) {
 				case ExtensionBlock.LABEL:
-					entity = ExtensionBlock.readBlock(is);
+					block = ExtensionBlock.readBlock(is);
 					break;
 				case TableBasedImage.LABEL:
-					entity = new TableBasedImage();
-					entity.read(is);
+					block = new TableBasedImage();
+					block.read(is);
 					break;
 				default:
 					throw new InvalidDataStreamException(
@@ -40,7 +40,7 @@ public class DataStream {
 							"Block label " + label
 					);
 			}
-			mData.add(entity);
+			mBlocks.add(block);
 		}
 	}
 }
