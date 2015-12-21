@@ -14,6 +14,12 @@ class BinaryUtils {
 		return (is.read() & 0xFF);
 	}
 
+	static byte[] readBytes(final InputStream is, int count) throws IOException {
+		byte[] data = new byte[count];
+		is.read(data);
+		return data;
+	}
+
 	static int readInt16(final InputStream is) throws IOException {
 		int low = (is.read() & 0xFF);
 		int high = (is.read() & 0xFF);

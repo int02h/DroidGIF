@@ -19,5 +19,14 @@ public class DataStream {
 	private void read(final InputStream is) throws IOException, InvalidDataStreamException {
 		mHeader.read(is);
 		mLogicalScreen.read(is);
+
+		int label;
+		while ((label = BinaryUtils.readByte(is)) != 0x3B) {
+			switch (label) {
+				case ExtensionBlock.LABEL:
+					final ExtensionBlock extensionBlock = ExtensionBlock.readBlock(is);
+					break;
+			}
+		}
 	}
 }
