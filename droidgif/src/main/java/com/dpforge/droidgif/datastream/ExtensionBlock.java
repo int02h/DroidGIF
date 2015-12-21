@@ -8,24 +8,18 @@ abstract class ExtensionBlock extends DataStreamBlock {
 	final static int LABEL_APPLICATION = 0xFF;
 	final static int LABEL_GRAPHIC_CONTROL = 0xF9;
 
-	static ExtensionBlock readBlock(final InputStream is) throws IOException, InvalidDataStreamException {
+	static ExtensionBlock createBlock(final InputStream is) throws IOException, InvalidDataStreamException {
 		final int label = BinaryUtils.readByte(is);
-		final ExtensionBlock result;
 		switch (label) {
 			case LABEL_APPLICATION:
-				result = new ApplicationExtension();
-				break;
+				return new ApplicationExtension();
 			case LABEL_GRAPHIC_CONTROL:
-				result = new GraphicControlExtension();
-				break;
+				return new GraphicControlExtension();
 			default:
 				throw new InvalidDataStreamException(
 						InvalidDataStreamException.ERROR_UNSUPPORTED_EXTENSION,
 						"Extension label " + label
 				);
 		}
-
-		result.read(is);
-		return result;
 	}
 }

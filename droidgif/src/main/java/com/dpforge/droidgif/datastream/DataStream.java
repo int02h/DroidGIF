@@ -28,11 +28,10 @@ public class DataStream {
 			final DataStreamBlock block;
 			switch (label) {
 				case ExtensionBlock.LABEL:
-					block = ExtensionBlock.readBlock(is);
+					block = ExtensionBlock.createBlock(is);
 					break;
 				case TableBasedImage.LABEL:
 					block = new TableBasedImage();
-					block.read(is);
 					break;
 				default:
 					throw new InvalidDataStreamException(
@@ -40,6 +39,7 @@ public class DataStream {
 							"Block label " + label
 					);
 			}
+			block.read(is);
 			mBlocks.add(block);
 		}
 	}
