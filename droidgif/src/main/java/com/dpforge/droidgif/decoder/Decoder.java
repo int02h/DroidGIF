@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Decoder {
-	private final List<GraphicBlock> mGraphicBlocks = new ArrayList<>();
+	private final List<ImageGraphicBlock> mGraphicBlocks = new ArrayList<>();
 
 	private Decoder() {
 	}
@@ -23,20 +23,19 @@ public class Decoder {
 	}
 
 	private void read(final DataStream stream) {
-		GraphicBlock graphicBlock = null;
-
+		GraphicControlExtension graphicExtension = null;
 		for (DataStreamBlock block : stream.blockList()) {
 			if (!isSpecialPurposeBlock(block)) {
-				if (graphicBlock == null) {
-					graphicBlock = new GraphicBlock();
-				}
-
 				if (block instanceof GraphicControlExtension) {
-					graphicBlock.setExtension((GraphicControlExtension) block);
+					graphicExtension = (GraphicControlExtension) block;
 				} else if (block instanceof TableBasedImage) {
-					graphicBlock.setImage((TableBasedImage) block);
-					mGraphicBlocks.add(graphicBlock);
-					graphicBlock = null;
+					ImageGraphicBlock image = new ImageGraphicBlock((TableBasedImage) block);
+					image.setExtension(graphicExtension);
+					if (stream.logicalScreen().hasGlobalColorTable()) {
+						image.setGlobalColorTable(stream.logicalScreen().globalColorTable());
+					}
+					image.decompress();
+					mGraphicBlocks.add(image);
 				}
 			}
 		}
