@@ -5,8 +5,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-class DataSubBlocks extends DataStreamBlock {
+public class DataSubBlocks extends DataStreamBlock {
 	private byte[] mData;
+
+	DataSubBlocks() {
+	}
 
 	@Override
 	void read(final InputStream is) throws IOException, InvalidDataStreamException {

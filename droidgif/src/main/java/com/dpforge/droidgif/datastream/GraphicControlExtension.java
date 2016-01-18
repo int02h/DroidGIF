@@ -3,7 +3,7 @@ package com.dpforge.droidgif.datastream;
 import java.io.IOException;
 import java.io.InputStream;
 
-class GraphicControlExtension extends ExtensionBlock {
+public class GraphicControlExtension extends ExtensionBlock {
 	final static int DISPOSAL_NOT_SPECIFIED = 0;
 	final static int DISPOSAL_NO = 1;
 	final static int DISPOSAL_RESTORE_BACKGROUND = 2;
@@ -14,6 +14,9 @@ class GraphicControlExtension extends ExtensionBlock {
 	private boolean mTransparentColor;
 	private int mDelay;
 	private int mTransparencyColorIndex;
+
+	GraphicControlExtension() {
+	}
 
 	@Override
 	void read(final InputStream is) throws IOException, InvalidDataStreamException {

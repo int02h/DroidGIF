@@ -3,6 +3,9 @@ package com.dpforge.droidgif.datastream;
 import java.io.IOException;
 import java.io.InputStream;
 
-abstract class DataStreamBlock {
+public abstract class DataStreamBlock {
+	protected DataStreamBlock() {
+	}
+
 	abstract void read(final InputStream is) throws IOException, InvalidDataStreamException;
 }

@@ -3,7 +3,7 @@ package com.dpforge.droidgif.datastream;
 import java.io.IOException;
 import java.io.InputStream;
 
-class LogicalScreen extends DataStreamBlock {
+public class LogicalScreen extends DataStreamBlock {
 	private int mWidth;
 	private int mHeight;
 	private boolean mHasGlobalColorTable;
@@ -14,6 +14,9 @@ class LogicalScreen extends DataStreamBlock {
 	private int mPixelAspectRatio;
 
 	private ColorTable mGlobalColorTable;
+
+	LogicalScreen() {
+	}
 
 	@Override
 	void read(final InputStream is) throws IOException, InvalidDataStreamException {

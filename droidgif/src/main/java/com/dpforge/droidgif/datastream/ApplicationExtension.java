@@ -3,10 +3,12 @@ package com.dpforge.droidgif.datastream;
 import java.io.IOException;
 import java.io.InputStream;
 
-class ApplicationExtension extends ExtensionBlock {
+public class ApplicationExtension extends ExtensionBlock {
 	private String mApplicationId;
 	private String mApplicationCode;
 	private final DataSubBlocks mApplicationData = new DataSubBlocks();
+
+	ApplicationExtension() {}
 
 	@Override
 	void read(final InputStream is) throws IOException, InvalidDataStreamException {
