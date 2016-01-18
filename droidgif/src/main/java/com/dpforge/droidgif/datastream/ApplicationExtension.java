@@ -10,6 +10,16 @@ public class ApplicationExtension extends ExtensionBlock {
 
 	ApplicationExtension() {}
 
+	@SuppressWarnings("unused")
+	public String applicationId() {
+		return mApplicationId;
+	}
+
+	@SuppressWarnings("unused")
+	public String applicationCode() {
+		return mApplicationCode;
+	}
+
 	@Override
 	void read(final InputStream is) throws IOException, InvalidDataStreamException {
 		final int size = BinaryUtils.readByte(is);

@@ -11,6 +11,10 @@ public class DataSubBlocks extends DataStreamBlock {
 	DataSubBlocks() {
 	}
 
+	public byte[] data() {
+		return mData;
+	}
+
 	@Override
 	void read(final InputStream is) throws IOException, InvalidDataStreamException {
 		int size;

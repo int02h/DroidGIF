@@ -18,6 +18,26 @@ public class GraphicControlExtension extends ExtensionBlock {
 	GraphicControlExtension() {
 	}
 
+	public int disposalMethod() {
+		return mDisposalMethod;
+	}
+
+	public boolean hasUserInput() {
+		return mUserInput;
+	}
+
+	public boolean hasTransparentColor() {
+		return mTransparentColor;
+	}
+
+	public int transparencyColorIndex() {
+		return mTransparencyColorIndex;
+	}
+
+	public int delay() {
+		return mDelay;
+	}
+
 	@Override
 	void read(final InputStream is) throws IOException, InvalidDataStreamException {
 		final int size = BinaryUtils.readByte(is);

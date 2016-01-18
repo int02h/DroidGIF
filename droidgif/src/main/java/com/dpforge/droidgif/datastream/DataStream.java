@@ -13,6 +13,10 @@ public class DataStream {
 	private DataStream() {
 	}
 
+	public LogicalScreen logicalScreen() {
+		return mLogicalScreen;
+	}
+
 	public List<DataStreamBlock> blockList() {
 		return mBlocks;
 	}

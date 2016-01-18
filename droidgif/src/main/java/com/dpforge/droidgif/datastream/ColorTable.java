@@ -12,6 +12,14 @@ public class ColorTable extends DataStreamBlock {
 		mColors = new int[size];
 	}
 
+	public int size() {
+		return mSize;
+	}
+
+	public int getColor(int index) {
+		return mColors[index];
+	}
+
 	@Override
 	void read(final InputStream is) throws IOException, InvalidDataStreamException {
 		for (int i = 0; i < mSize; ++i) {
