@@ -13,6 +13,10 @@ public class DataStream {
 	private DataStream() {
 	}
 
+	public List<DataStreamBlock> blockList() {
+		return mBlocks;
+	}
+
 	public static DataStream readFromStream(final InputStream is) throws IOException, InvalidDataStreamException {
 		final DataStream dataStream = new DataStream();
 		dataStream.read(is);
