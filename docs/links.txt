@@ -1,0 +1,5 @@
+GIF specification:
+	https://www.w3.org/Graphics/GIF/spec-gif89a.txt
+
+GIF LZW compression/decompression:
+	http://matthewflickinger.com/lab/whatsinagif/lzw_image_data.asp
