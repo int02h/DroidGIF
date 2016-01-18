@@ -1,19 +1,17 @@
 package com.dpforge.droidgif.decoder.lzw;
 
 class CodeStream {
-	private byte[] mData;
+	private final byte[] mBits;
 	private int mCodeSize;
-	private byte[] mBits;
 	private int mIndex;
 
 	CodeStream(byte[] data, int codeSize) {
-		mData = data;
 		mCodeSize = codeSize;
 
-		mBits = new byte[mData.length*8];
-		for (int i = 0; i < mData.length; ++i) {
+		mBits = new byte[data.length*8];
+		for (int i = 0; i < data.length; ++i) {
 			for (int j = 0; j < 8; ++j) {
-				byte bit = getBit(mData[i], j);
+				byte bit = getBit(data[i], j);
 				mBits[i*8 + j] = bit;
 			}
 		}
