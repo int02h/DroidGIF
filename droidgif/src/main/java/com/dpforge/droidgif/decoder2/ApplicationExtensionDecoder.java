@@ -8,7 +8,6 @@ class ApplicationExtensionDecoder extends BaseDecoder {
 	private String mApplicationCode;
 
 	ApplicationExtensionDecoder() {
-
 	}
 
 	@SuppressWarnings("unused")
