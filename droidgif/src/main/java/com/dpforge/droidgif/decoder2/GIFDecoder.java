@@ -2,34 +2,36 @@ package com.dpforge.droidgif.decoder2;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
-public class GIFDecoder extends BaseDecoder {
+public class GIFDecoder {
 	private final static String GIF_SIGNATURE = "GIF";
-	private final static String[] SUPPORTED_VERSIONS = new String[]{"87a", "89a"};
+	private final static Set<String> SUPPORTED_VERSIONS = new HashSet<>(Arrays.asList("87a", "89a"));
+	private final BinaryStream mStream;
 
-	private GIFDecoder() {
+	public GIFDecoder(final InputStream inputStream) {
+		mStream = new BinaryStream(inputStream);
 	}
 
-	public static GIFDecoder create(final InputStream inputStream) throws IOException, DecoderException {
-		final GIFDecoder decoder = new GIFDecoder();
-		decoder.read(new BinaryStream(inputStream));
-		return decoder;
+	void decode() throws IOException, DecoderException {
+		readHeader();
+		readLogicalScreen();
 	}
 
-	@Override
-	void read(final BinaryStream stream) throws IOException, DecoderException {
-		readHeader(stream);
-	}
-
-	private void readHeader(final BinaryStream stream) throws IOException, DecoderException {
-		final String signature = stream.readASCIIString(3);
+	private void readHeader() throws IOException, DecoderException {
+		final String signature = mStream.readASCIIString(3);
 		if (!GIF_SIGNATURE.equals(signature))
 			throw new DecoderException(DecoderException.ERROR_WRONG_SIGNATURE);
 
-		final String version = stream.readASCIIString(3);
-		for (String supported : SUPPORTED_VERSIONS) {
-			if (!supported.equals(version))
-				throw new DecoderException(DecoderException.ERROR_UNSUPPORTED_VERSION);
-		}
+		final String version = mStream.readASCIIString(3);
+		if (!SUPPORTED_VERSIONS.contains(version))
+			throw new DecoderException(DecoderException.ERROR_UNSUPPORTED_VERSION);
+	}
+
+	private void readLogicalScreen() throws IOException, DecoderException {
+		final LogicalScreenDecoder decoder = new LogicalScreenDecoder();
+		decoder.read(mStream);
 	}
 }
