@@ -16,6 +16,14 @@ public class Decoder {
 	private Decoder() {
 	}
 
+	public int graphicBlockCount() {
+		return mGraphicBlocks.size();
+	}
+
+	public ImageGraphicBlock getGraphicBlock(int index) {
+		return mGraphicBlocks.get(index);
+	}
+
 	public static Decoder create(final DataStream stream) {
 		final Decoder decoder = new Decoder();
 		decoder.read(stream);
