@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 class BinaryStream {
+	private final byte[] mSkipBuffer = new byte[255];
 	private final InputStream mStream;
 
 	BinaryStream(final InputStream stream) {
@@ -32,7 +33,9 @@ class BinaryStream {
 		return (low + (high << 8)) & 0xFFFF;
 	}
 
-	void skipBytes(long count) throws IOException {
-		mStream.skip(count);
+	void skipBytes(int count) throws IOException {
+		while (count > 0) {
+			count -= mStream.read(mSkipBuffer, 0, Math.min(mSkipBuffer.length, count));
+		}
 	}
 }
