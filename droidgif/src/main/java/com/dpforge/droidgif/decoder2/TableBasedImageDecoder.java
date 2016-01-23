@@ -16,8 +16,10 @@ class TableBasedImageDecoder extends BaseDecoder {
 	private boolean mIsLocalTableSorted;
 
 	private ColorTable mLocalColorTable;
+	private final ColorTable mGlobalColorTable;
 
-	TableBasedImageDecoder() {
+	TableBasedImageDecoder(final ColorTable globalColorTable) {
+		mGlobalColorTable = globalColorTable;
 	}
 
 	public int left() {
@@ -79,7 +81,7 @@ class TableBasedImageDecoder extends BaseDecoder {
 			public int read() throws IOException {
 				return subStream.read();
 			}
-		}, minCodeSize + 1, 256); // TODO: pass corrent amount of color
+		}, minCodeSize + 1, colorTable().size());
 
 		if (subStream.read() != -1) { // read last zero byte
 			throw new DecoderException(
@@ -93,5 +95,9 @@ class TableBasedImageDecoder extends BaseDecoder {
 					DecoderException.ERROR_WRONG_IMAGE_DATA,
 					"Wrong size of color indices list"
 			);
+	}
+
+	private ColorTable colorTable() {
+		return mHasLocalColorTable ? mLocalColorTable : mGlobalColorTable;
 	}
 }

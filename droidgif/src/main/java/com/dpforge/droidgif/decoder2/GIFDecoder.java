@@ -16,6 +16,7 @@ public class GIFDecoder {
 	private final static int TABLE_BASED_IMAGE_LABEL = 0x2C;
 
 	private final BinaryStream mStream;
+	private final GIFImage mImage = new GIFImage();
 
 	public GIFDecoder(final InputStream inputStream) {
 		mStream = new BinaryStream(inputStream);
@@ -40,6 +41,10 @@ public class GIFDecoder {
 	private void readLogicalScreen() throws IOException, DecoderException {
 		final LogicalScreenDecoder decoder = new LogicalScreenDecoder();
 		decoder.read(mStream);
+
+		if (decoder.hasGlobalColorTable()) {
+			mImage.setGlobalColorTable(decoder.globalColorTable());
+		}
 	}
 
 	private void readData() throws IOException, DecoderException {
@@ -63,7 +68,7 @@ public class GIFDecoder {
 					}
 					break;
 				case TABLE_BASED_IMAGE_LABEL:
-					new TableBasedImageDecoder().read(mStream);
+					new TableBasedImageDecoder(mImage.getGlobalColorTable()).read(mStream);
 					break;
 			}
 		}
