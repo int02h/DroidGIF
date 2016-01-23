@@ -9,6 +9,12 @@ import java.util.Set;
 public class GIFDecoder {
 	private final static String GIF_SIGNATURE = "GIF";
 	private final static Set<String> SUPPORTED_VERSIONS = new HashSet<>(Arrays.asList("87a", "89a"));
+	private final static int GIF_TRAILER = 0x3B;
+	private final static int EXTENSION_LABEL = 0x21;
+	private final static int EXTENSION_APPLICATION = 0xFF;
+	private final static int EXTENSION_GRAPHIC_CONTROL = 0xF9;
+	private final static int TABLE_BASED_IMAGE_LABEL = 0x2C;
+
 	private final BinaryStream mStream;
 
 	public GIFDecoder(final InputStream inputStream) {
@@ -18,6 +24,7 @@ public class GIFDecoder {
 	void decode() throws IOException, DecoderException {
 		readHeader();
 		readLogicalScreen();
+		readData();
 	}
 
 	private void readHeader() throws IOException, DecoderException {
@@ -34,4 +41,32 @@ public class GIFDecoder {
 		final LogicalScreenDecoder decoder = new LogicalScreenDecoder();
 		decoder.read(mStream);
 	}
+
+	private void readData() throws IOException, DecoderException {
+		int label;
+		while ((label = mStream.readByte()) != GIF_TRAILER) {
+			switch (label) {
+				case EXTENSION_LABEL:
+					label = mStream.readByte();
+					switch (label) {
+						case EXTENSION_APPLICATION:
+							new ApplicationExtensionDecoder().read(mStream);
+							break;
+						case EXTENSION_GRAPHIC_CONTROL:
+							new GraphicControlExtensionDecoder().read(mStream);
+							break;
+						default:
+							throw new DecoderException(
+									DecoderException.ERROR_UNSUPPORTED_EXTENSION,
+									"Extension label " + label
+							);
+					}
+					break;
+				case TABLE_BASED_IMAGE_LABEL:
+					new TableBasedImageDecoder().read(mStream);
+					break;
+			}
+		}
+	}
+
 }
