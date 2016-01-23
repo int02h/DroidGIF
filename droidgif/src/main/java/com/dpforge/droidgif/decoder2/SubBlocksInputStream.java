@@ -4,6 +4,7 @@ import java.io.IOException;
 
 class SubBlocksInputStream {
 	private final BinaryStream mStream;
+	private int mBytesLeft = 0;
 
 	SubBlocksInputStream(final BinaryStream stream) {
 		mStream = stream;
@@ -17,6 +18,13 @@ class SubBlocksInputStream {
 	}
 
 	int read() throws IOException {
-		return 0;
+		if (mBytesLeft == 0) {
+			mBytesLeft = mStream.readByte();
+			if (mBytesLeft == 0)
+				throw new IOException("Unexpected end of sub-block stream");
+		}
+
+		mBytesLeft--;
+		return mStream.readByte();
 	}
 }
