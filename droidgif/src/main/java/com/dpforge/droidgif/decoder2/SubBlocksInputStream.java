@@ -21,7 +21,7 @@ class SubBlocksInputStream {
 		if (mBytesLeft == 0) {
 			mBytesLeft = mStream.readByte();
 			if (mBytesLeft == 0)
-				throw new IOException("Unexpected end of sub-block stream");
+				return -1;
 		}
 
 		mBytesLeft--;

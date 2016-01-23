@@ -1,6 +1,10 @@
 package com.dpforge.droidgif.decoder2;
 
+import com.dpforge.droidgif.decoder2.lzw.LZW;
+
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 
 class TableBasedImageDecoder extends BaseDecoder {
 	private int mLeft;
@@ -67,9 +71,27 @@ class TableBasedImageDecoder extends BaseDecoder {
 		readImageData(stream);
 	}
 
-	private void readImageData(final BinaryStream stream) throws IOException {
-		final int LZWMinCodeSize = stream.readByte();
-		SubBlocksInputStream subStream = new SubBlocksInputStream(stream);
-		subStream.skipAll(); // TODO
+	private void readImageData(final BinaryStream stream) throws IOException, DecoderException {
+		final int minCodeSize = stream.readByte();
+		final SubBlocksInputStream subStream = new SubBlocksInputStream(stream);
+		final List<Integer> colorIndices = LZW.decompress(new InputStream() {
+			@Override
+			public int read() throws IOException {
+				return subStream.read();
+			}
+		}, minCodeSize + 1, 256); // TODO: pass corrent amount of color
+
+		if (subStream.read() != -1) { // read last zero byte
+			throw new DecoderException(
+					DecoderException.ERROR_WRONG_IMAGE_DATA,
+					"Redundant bytes in image data"
+			);
+		}
+
+		if (colorIndices.size() != mWidth*mHeight)
+			throw new DecoderException(
+					DecoderException.ERROR_WRONG_IMAGE_DATA,
+					"Wrong size of color indices list"
+			);
 	}
 }

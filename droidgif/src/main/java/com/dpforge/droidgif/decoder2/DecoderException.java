@@ -7,6 +7,7 @@ public class DecoderException extends Exception {
 	public final static int ERROR_WRONG_VALUE           = 0xde004;
 	public final static int ERROR_TERMINATOR_NOT_ZERO   = 0xde005;
 	public final static int ERROR_UNSUPPORTED_BLOCK     = 0xde006;
+	public final static int ERROR_WRONG_IMAGE_DATA      = 0xde007;
 
 	private final int mCode;
 	private final String mMessage;
