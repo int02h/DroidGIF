@@ -22,7 +22,7 @@ public class GIFDecoder {
 		mStream = new BinaryStream(inputStream);
 	}
 
-	void decode() throws IOException, DecoderException {
+	public void decode() throws IOException, DecoderException {
 		readHeader();
 		readLogicalScreen();
 		readData();
