@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 
 class CodeStream {
+	private final static int[] BIT_MASKS = new int[]{0, 1, 3, 7, 15, 31, 63, 127, 255, 511, 1023, 2047, 4095};
+
 	private final InputStream mStream;
 	private int mCodeSize;
 
-	private int mCurrentByte;
-	private int mBitIndex;
+	private int mBuffer;
+	private int mBufferSize;
 
 	public CodeStream(final InputStream inputStream, final int codeSize) {
 		mStream = inputStream;
@@ -20,28 +22,13 @@ class CodeStream {
 	}
 
 	int nextValue() throws IOException {
-		int value = 0;
-		for (int valueBitIndex = 0; valueBitIndex < mCodeSize; valueBitIndex++, mBitIndex = (mBitIndex + 1) % 8) {
-			if (mBitIndex == 0) {
-				mCurrentByte = mStream.read();
-			}
-			boolean bit = getBit(mCurrentByte, mBitIndex);
-			value = setBit(value, valueBitIndex, bit);
+		while (mBufferSize < mCodeSize) {
+			mBuffer |= mStream.read() << mBufferSize;
+			mBufferSize += 8;
 		}
+		int value = mBuffer & BIT_MASKS[mCodeSize];
+		mBuffer >>= mCodeSize;
+		mBufferSize -= mCodeSize;
 		return value;
-	}
-
-	private static boolean getBit(int value, int index) {
-		int mask = (1 << index);
-		return ((value & mask) == mask);
-	}
-
-	private static int setBit(int value, int index, boolean bit) {
-		int mask = (1 << index);
-		if (bit) {
-			return value | mask;
-		} else {
-			return value & ~mask;
-		}
 	}
 }
