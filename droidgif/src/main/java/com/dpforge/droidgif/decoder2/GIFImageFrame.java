@@ -54,6 +54,10 @@ public class GIFImageFrame {
 		return mDelay;
 	}
 
+	public DisposalMethod disposalMethod() {
+		return mDisposalMethod;
+	}
+
 	public int getColor(int x, int y) {
 		int colorIndex = mColorIndices.get(y*mWidth + x);
 		return mColorTable.getColor(colorIndex);
