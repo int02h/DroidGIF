@@ -64,9 +64,8 @@ class LogicalScreenDecoder extends BaseDecoder {
 
 		if (mHasGlobalColorTable) {
 			int size = (int) Math.pow(2, globalColorTableSize + 1);
-			ColorTableDecoder colorTableDecoder = new ColorTableDecoder(size);
-			colorTableDecoder.read(stream);
-			mGlobalColorTable = colorTableDecoder.colorTable();
+			mGlobalColorTable = new ColorTable(size);
+			mGlobalColorTable.read(stream);
 		}
 	}
 }

@@ -70,9 +70,8 @@ class TableBasedImageDecoder extends BaseDecoder {
 
 		if (mHasLocalColorTable) {
 			int size = (int) Math.pow(2, localColorTableSize + 1);
-			ColorTableDecoder colorTableDecoder = new ColorTableDecoder(size);
-			colorTableDecoder.read(stream);
-			mLocalColorTable = colorTableDecoder.colorTable();
+			mLocalColorTable = new ColorTable(size);
+			mLocalColorTable.read(stream);
 		}
 
 		readImageData(stream);
