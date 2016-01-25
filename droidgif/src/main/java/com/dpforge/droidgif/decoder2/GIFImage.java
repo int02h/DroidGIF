@@ -14,8 +14,12 @@ public class GIFImage {
 	GIFImage() {
 	}
 
-	ColorTable globalColorTable() {
-		return mGlobalColorTable;
+	public int width() {
+		return mWidth;
+	}
+
+	public int height() {
+		return mHeight;
 	}
 
 	public boolean isEmpty() {
@@ -34,6 +38,10 @@ public class GIFImage {
 
 	public GIFImageFrame getFrame(final int index) {
 		return mFrames.get(index);
+	}
+
+	ColorTable globalColorTable() {
+		return mGlobalColorTable;
 	}
 
 	void setGlobalColorTable(final ColorTable colorTable) {
