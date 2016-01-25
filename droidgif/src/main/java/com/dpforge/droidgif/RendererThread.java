@@ -6,11 +6,13 @@ import android.view.SurfaceHolder;
 
 import com.dpforge.droidgif.decoder.Decoder;
 import com.dpforge.droidgif.decoder.ImageGraphicBlock;
+import com.dpforge.droidgif.decoder2.GIFImage;
+import com.dpforge.droidgif.decoder2.GIFImageFrame;
 
 class RendererThread extends Thread {
 	private final SurfaceHolder mHolder;
 	private boolean mRunning;
-	private Decoder mDecoder;
+	private GIFImage mImage;
 
 	RendererThread(final SurfaceHolder holder) {
 		mHolder = holder;
@@ -20,8 +22,8 @@ class RendererThread extends Thread {
 		mRunning = running;
 	}
 
-	void setDecoder(final Decoder decoder) {
-		mDecoder = decoder;
+	void setImage(final GIFImage image) {
+		mImage = image;
 	}
 
 	@Override
@@ -42,16 +44,16 @@ class RendererThread extends Thread {
 	}
 
 	private void drawFrame(final Canvas canvas) {
-		if (mDecoder.graphicBlockCount() == 0)
+		if (mImage.isEmpty())
 			return;
 
-		final ImageGraphicBlock image = mDecoder.getGraphicBlock(0);
+		final GIFImageFrame frame = mImage.getFrame(0);
 		final Paint paint = new Paint();
 		paint.setStyle(Paint.Style.FILL);
 
-		for (int y = 0; y < image.height(); ++y) {
-			for (int x = 0; x < image.width(); ++x) {
-				final int color = image.getColor(x, y);
+		for (int y = 0; y < frame.height(); ++y) {
+			for (int x = 0; x < frame.width(); ++x) {
+				final int color = frame.getColor(x, y);
 				paint.setColor(color | 0xFF000000);
 				canvas.drawPoint(x, y, paint);
 			}

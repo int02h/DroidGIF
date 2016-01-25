@@ -5,9 +5,9 @@ import android.support.annotation.RawRes;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import com.dpforge.droidgif.datastream.DataStream;
-import com.dpforge.droidgif.datastream.InvalidDataStreamException;
-import com.dpforge.droidgif.decoder.Decoder;
+import com.dpforge.droidgif.decoder2.DecoderException;
+import com.dpforge.droidgif.decoder2.GIFDecoder;
+import com.dpforge.droidgif.decoder2.GIFImage;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -26,11 +26,11 @@ public class GIFImageView extends SurfaceView {
 		final InputStream is = getContext().getResources().openRawResource(resId);
 		final BufferedInputStream bis = new BufferedInputStream(is);
 		try {
-			final DataStream dataStream = DataStream.readFromStream(bis);
+			final GIFDecoder decoder = new GIFDecoder(bis);
+			final GIFImage image = decoder.decode();
 			bis.close();
-			final Decoder decoder = Decoder.create(dataStream);
-			mRendererThread.setDecoder(decoder);
-		} catch (IOException | InvalidDataStreamException e) {
+			mRendererThread.setImage(image);
+		} catch (IOException | DecoderException  e) {
 			e.printStackTrace();
 		}
 	}

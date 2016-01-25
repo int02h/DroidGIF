@@ -16,16 +16,17 @@ public class GIFDecoder {
 	private final static int TABLE_BASED_IMAGE_LABEL = 0x2C;
 
 	private final BinaryStream mStream;
-	private final GIFImage mImage = new GIFImage();
 
 	public GIFDecoder(final InputStream inputStream) {
 		mStream = new BinaryStream(inputStream);
 	}
 
-	public void decode() throws IOException, DecoderException {
+	public GIFImage decode() throws IOException, DecoderException {
+		final GIFImage image = new GIFImage();
 		readHeader();
-		readLogicalScreen();
-		readData();
+		readLogicalScreen(image);
+		readData(image);
+		return image;
 	}
 
 	private void readHeader() throws IOException, DecoderException {
@@ -38,17 +39,18 @@ public class GIFDecoder {
 			throw new DecoderException(DecoderException.ERROR_UNSUPPORTED_VERSION);
 	}
 
-	private void readLogicalScreen() throws IOException, DecoderException {
+	private void readLogicalScreen(final GIFImage image) throws IOException, DecoderException {
 		final LogicalScreenDecoder decoder = new LogicalScreenDecoder();
 		decoder.read(mStream);
 
 		if (decoder.hasGlobalColorTable()) {
-			mImage.setGlobalColorTable(decoder.globalColorTable());
+			image.setGlobalColorTable(decoder.globalColorTable());
 		}
 	}
 
-	private void readData() throws IOException, DecoderException {
+	private void readData(final GIFImage image) throws IOException, DecoderException {
 		int label;
+		GraphicControlExtensionDecoder graphicControlDecoder = null;
 		while ((label = mStream.readByte()) != GIF_TRAILER) {
 			switch (label) {
 				case EXTENSION_LABEL:
@@ -58,7 +60,8 @@ public class GIFDecoder {
 							new ApplicationExtensionDecoder().read(mStream);
 							break;
 						case EXTENSION_GRAPHIC_CONTROL:
-							new GraphicControlExtensionDecoder().read(mStream);
+							graphicControlDecoder = new GraphicControlExtensionDecoder();
+							graphicControlDecoder.read(mStream);
 							break;
 						default:
 							throw new DecoderException(
@@ -68,7 +71,10 @@ public class GIFDecoder {
 					}
 					break;
 				case TABLE_BASED_IMAGE_LABEL:
-					new TableBasedImageDecoder(mImage.getGlobalColorTable()).read(mStream);
+					final TableBasedImageDecoder imageDecoder = new TableBasedImageDecoder(image.globalColorTable());
+					imageDecoder.read(mStream);
+					image.addFrame(imageDecoder, graphicControlDecoder);
+					graphicControlDecoder = null;
 					break;
 			}
 		}
