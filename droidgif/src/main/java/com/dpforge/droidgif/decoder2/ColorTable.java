@@ -2,7 +2,7 @@ package com.dpforge.droidgif.decoder2;
 
 import java.io.IOException;
 
-public class ColorTable extends BaseDecoder {
+public class ColorTable extends DecoderReader {
 	private final int mSize;
 	private final int[] mColors;
 

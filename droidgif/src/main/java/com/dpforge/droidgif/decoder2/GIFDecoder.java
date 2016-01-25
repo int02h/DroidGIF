@@ -40,7 +40,7 @@ public class GIFDecoder {
 	}
 
 	private void readLogicalScreen(final GIFImage image) throws IOException, DecoderException {
-		final LogicalScreenDecoder decoder = new LogicalScreenDecoder();
+		final LogicalScreen decoder = new LogicalScreen();
 		decoder.read(mStream);
 
 		if (decoder.hasGlobalColorTable()) {
@@ -50,17 +50,17 @@ public class GIFDecoder {
 
 	private void readData(final GIFImage image) throws IOException, DecoderException {
 		int label;
-		GraphicControlExtensionDecoder graphicControlDecoder = null;
+		GraphicControlExtension graphicControlDecoder = null;
 		while ((label = mStream.readByte()) != GIF_TRAILER) {
 			switch (label) {
 				case EXTENSION_LABEL:
 					label = mStream.readByte();
 					switch (label) {
 						case EXTENSION_APPLICATION:
-							new ApplicationExtensionDecoder().read(mStream);
+							new ApplicationExtension().read(mStream);
 							break;
 						case EXTENSION_GRAPHIC_CONTROL:
-							graphicControlDecoder = new GraphicControlExtensionDecoder();
+							graphicControlDecoder = new GraphicControlExtension();
 							graphicControlDecoder.read(mStream);
 							break;
 						default:
@@ -71,7 +71,7 @@ public class GIFDecoder {
 					}
 					break;
 				case TABLE_BASED_IMAGE_LABEL:
-					final TableBasedImageDecoder imageDecoder = new TableBasedImageDecoder(image.globalColorTable());
+					final TableBasedImage imageDecoder = new TableBasedImage(image.globalColorTable());
 					imageDecoder.read(mStream);
 					image.addFrame(imageDecoder, graphicControlDecoder);
 					graphicControlDecoder = null;

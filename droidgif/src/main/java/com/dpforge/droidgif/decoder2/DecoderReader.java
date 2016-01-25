@@ -2,8 +2,8 @@ package com.dpforge.droidgif.decoder2;
 
 import java.io.IOException;
 
-abstract class BaseDecoder {
-	protected BaseDecoder() {
+abstract class DecoderReader {
+	protected DecoderReader() {
 	}
 
 	abstract void read(final BinaryStream stream) throws IOException, DecoderException;

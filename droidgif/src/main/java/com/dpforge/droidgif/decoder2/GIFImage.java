@@ -30,8 +30,8 @@ public class GIFImage {
 		mGlobalColorTable = colorTable;
 	}
 
-	GIFImageFrame addFrame(final TableBasedImageDecoder imageDecoder, final GraphicControlExtensionDecoder decoder) {
-		GIFImageFrame frame = new GIFImageFrame(this, imageDecoder, decoder);
+	GIFImageFrame addFrame(final TableBasedImage image, final GraphicControlExtension imageExtension) {
+		GIFImageFrame frame = new GIFImageFrame(this, image, imageExtension);
 		mFrames.add(frame);
 		return frame;
 	}

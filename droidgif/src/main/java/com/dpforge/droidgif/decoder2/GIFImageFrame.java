@@ -14,16 +14,16 @@ public class GIFImageFrame {
 	private final ColorTable mColorTable;
 	private final List<Integer> mColorIndices;
 
-	GIFImageFrame(final GIFImage image, final TableBasedImageDecoder imageDecoder, final GraphicControlExtensionDecoder decoder) {
-		mImage = image;
-		mLeft = imageDecoder.left();
-		mTop = imageDecoder.top();
-		mWidth = imageDecoder.width();
-		mHeight = imageDecoder.height();
+	GIFImageFrame(final GIFImage gifImage, final TableBasedImage imageData, final GraphicControlExtension imageExtension) {
+		mImage = gifImage;
+		mLeft = imageData.left();
+		mTop = imageData.top();
+		mWidth = imageData.width();
+		mHeight = imageData.height();
 
-		mDelay = decoder != null ? decoder.delay() : 0;
-		mColorTable = imageDecoder.hasLocalColorTable() ? imageDecoder.localColorTable() : image.globalColorTable();
-		mColorIndices = imageDecoder.colorIndices();
+		mDelay = imageExtension != null ? imageExtension.delay() : 0;
+		mColorTable = imageData.hasLocalColorTable() ? imageData.localColorTable() : gifImage.globalColorTable();
+		mColorIndices = imageData.colorIndices();
 	}
 
 	public int left() {

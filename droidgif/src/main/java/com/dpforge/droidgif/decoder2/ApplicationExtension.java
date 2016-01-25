@@ -3,11 +3,11 @@ package com.dpforge.droidgif.decoder2;
 
 import java.io.IOException;
 
-class ApplicationExtensionDecoder extends BaseDecoder {
+class ApplicationExtension extends DecoderReader {
 	private String mApplicationId;
 	private String mApplicationCode;
 
-	ApplicationExtensionDecoder() {
+	ApplicationExtension() {
 	}
 
 	@SuppressWarnings("unused")

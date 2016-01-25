@@ -2,7 +2,7 @@ package com.dpforge.droidgif.decoder2;
 
 import java.io.IOException;
 
-class LogicalScreenDecoder extends BaseDecoder {
+class LogicalScreen extends DecoderReader {
 	private int mWidth;
 	private int mHeight;
 	private boolean mHasGlobalColorTable;
@@ -13,7 +13,7 @@ class LogicalScreenDecoder extends BaseDecoder {
 
 	private ColorTable mGlobalColorTable;
 
-	LogicalScreenDecoder() {
+	LogicalScreen() {
 	}
 
 	public int width() {

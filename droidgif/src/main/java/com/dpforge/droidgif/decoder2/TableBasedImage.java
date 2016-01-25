@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-class TableBasedImageDecoder extends BaseDecoder {
+class TableBasedImage extends DecoderReader {
 	private int mLeft;
 	private int mTop;
 	private int mWidth;
@@ -19,7 +19,7 @@ class TableBasedImageDecoder extends BaseDecoder {
 	private final ColorTable mGlobalColorTable;
 	private List<Integer> mColorIndices;
 
-	TableBasedImageDecoder(final ColorTable globalColorTable) {
+	TableBasedImage(final ColorTable globalColorTable) {
 		mGlobalColorTable = globalColorTable;
 	}
 

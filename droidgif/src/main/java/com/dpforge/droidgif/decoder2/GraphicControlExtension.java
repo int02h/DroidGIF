@@ -2,7 +2,7 @@ package com.dpforge.droidgif.decoder2;
 
 import java.io.IOException;
 
-class GraphicControlExtensionDecoder extends BaseDecoder {
+class GraphicControlExtension extends DecoderReader {
 	final static int DISPOSAL_NOT_SPECIFIED = 0;
 	final static int DISPOSAL_NO = 1;
 	final static int DISPOSAL_RESTORE_BACKGROUND = 2;
@@ -14,7 +14,7 @@ class GraphicControlExtensionDecoder extends BaseDecoder {
 	private int mDelay;
 	private int mTransparencyColorIndex;
 
-	GraphicControlExtensionDecoder() {
+	GraphicControlExtension() {
 	}
 
 	public int disposalMethod() {
