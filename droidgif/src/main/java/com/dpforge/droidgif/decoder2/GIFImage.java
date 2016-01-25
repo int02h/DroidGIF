@@ -7,6 +7,10 @@ public class GIFImage {
 	private ColorTable mGlobalColorTable;
 	private List<GIFImageFrame> mFrames = new ArrayList<>(1);
 
+	private int mWidth;
+	private int mHeight;
+	private int mBackgroundColorIndex;
+
 	GIFImage() {
 	}
 
@@ -22,12 +26,27 @@ public class GIFImage {
 		return mFrames.size();
 	}
 
+	public int backgroundColor() {
+		return (mGlobalColorTable != null
+				? mGlobalColorTable.getColor(mBackgroundColorIndex)
+				: 0x000000);
+	}
+
 	public GIFImageFrame getFrame(final int index) {
 		return mFrames.get(index);
 	}
 
 	void setGlobalColorTable(final ColorTable colorTable) {
 		mGlobalColorTable = colorTable;
+	}
+
+	void setSize(final int width, final int height) {
+		mWidth = width;
+		mHeight = height;
+	}
+
+	void setBackgroundColorIndex(final int backgroundColorIndex) {
+		mBackgroundColorIndex = backgroundColorIndex;
 	}
 
 	GIFImageFrame addFrame(final TableBasedImage image, final GraphicControlExtension imageExtension) {

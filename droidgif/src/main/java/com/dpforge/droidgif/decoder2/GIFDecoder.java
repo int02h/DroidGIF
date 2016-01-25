@@ -43,6 +43,8 @@ public class GIFDecoder {
 		final LogicalScreen decoder = new LogicalScreen();
 		decoder.read(mStream);
 
+		image.setSize(decoder.width(), decoder.height());
+		image.setBackgroundColorIndex(decoder.backgroundColorIndex());
 		if (decoder.hasGlobalColorTable()) {
 			image.setGlobalColorTable(decoder.globalColorTable());
 		}
