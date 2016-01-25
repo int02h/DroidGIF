@@ -21,7 +21,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
 	public void testPerformance() throws Exception {
 		long startTime = System.currentTimeMillis();
-		int count = 10;
+		int count = 100;
 		for (int i = 0; i < count; ++i) {
 			InputStream inputStream = getContext().getResources().openRawResource(R.raw.earthquake);
 			DataStream dataStream = DataStream.readFromStream(new BufferedInputStream(inputStream));
@@ -35,7 +35,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
 	public void testPerformanceImproved() throws Exception {
 		long startTime = System.currentTimeMillis();
-		int count = 10;
+		int count = 100;
 		for (int i = 0; i < count; ++i) {
 			InputStream inputStream = getContext().getResources().openRawResource(R.raw.earthquake);
 			final GIFDecoder decoder = new GIFDecoder(new BufferedInputStream(inputStream));
