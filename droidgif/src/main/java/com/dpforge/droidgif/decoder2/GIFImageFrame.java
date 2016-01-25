@@ -10,6 +10,7 @@ public class GIFImageFrame {
 	private final int mWidth;
 	private final int mHeight;
 	private final int mDelay;
+	private final DisposalMethod mDisposalMethod;
 
 	private final ColorTable mColorTable;
 	private final List<Integer> mColorIndices;
@@ -21,9 +22,16 @@ public class GIFImageFrame {
 		mWidth = imageData.width();
 		mHeight = imageData.height();
 
-		mDelay = imageExtension != null ? imageExtension.delay() : 0;
 		mColorTable = imageData.hasLocalColorTable() ? imageData.localColorTable() : gifImage.globalColorTable();
 		mColorIndices = imageData.colorIndices();
+
+		if (imageExtension != null) {
+			mDelay = imageExtension.delay();
+			mDisposalMethod = imageExtension.disposalMethod();
+		} else {
+			mDelay = 0;
+			mDisposalMethod = DisposalMethod.NOT_SPECIFIED;
+		}
 	}
 
 	public int left() {
