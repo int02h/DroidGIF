@@ -18,6 +18,10 @@ public class GIFImage {
 		return mFrames.isEmpty();
 	}
 
+	public int framesCount() {
+		return mFrames.size();
+	}
+
 	public GIFImageFrame getFrame(final int index) {
 		return mFrames.get(index);
 	}
