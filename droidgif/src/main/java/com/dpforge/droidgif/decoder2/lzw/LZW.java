@@ -36,7 +36,7 @@ public class LZW {
 				} else { // not in code table
 					List<Integer> k = new ArrayList<>();
 					k.add(codeTable.get(prevCode).get(0));
-					k.addAll(codeTable.get(prevCode));
+					k.addAll(0, codeTable.get(prevCode));
 					indexStream.addAll(k);
 					codeTable.add(k);
 				}
