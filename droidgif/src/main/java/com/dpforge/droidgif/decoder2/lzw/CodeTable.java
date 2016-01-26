@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 
 class CodeTable {
+	final static int MAX_SIZE = 4096;
+
 	private final List<List<Integer>> mData;
 	private final int mColorAmount;
 	private final int mClearCode;
@@ -13,7 +15,7 @@ class CodeTable {
 	CodeTable(int colorAmount) {
 		mColorAmount = colorAmount;
 
-		mData = new ArrayList<>(mColorAmount + 2);
+		mData = new ArrayList<>(MAX_SIZE);
 		mClearCode = mColorAmount;
 		mEndCode = mColorAmount + 1;
 	}

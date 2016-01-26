@@ -43,7 +43,7 @@ public class LZW {
 					codeTable.add(k);
 				}
 
-				if (codeTable.size() >= threshold) {
+				if (codeTable.size() >= threshold && threshold < CodeTable.MAX_SIZE) {
 					threshold <<= 1;
 					codeSize++;
 					codeStream.setCodeSize(codeSize);
