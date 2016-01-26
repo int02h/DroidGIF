@@ -43,7 +43,7 @@ class RendererThread extends Thread {
 			Canvas canvas = null;
 			try {
 				canvas = mHolder.lockCanvas();
-				if (canvas != null) {
+				if (canvas != null && mImage != null) {
 					final GIFImageFrame frame = mImage.getFrame(mFrameIndex);
 					prepareBuffer(frame);
 					drawBuffer(canvas);
