@@ -59,7 +59,7 @@ public class GIFImageFrame {
 	}
 
 	public int getColor(int x, int y) {
-		byte colorIndex = mColorIndices[y*mWidth + x];
+		int colorIndex = mColorIndices[y*mWidth + x] & 0xFF;
 		return mColorTable.getColor(colorIndex);
 	}
 }
