@@ -5,7 +5,7 @@ import java.io.InputStream;
 
 public class LZW {
 	private final static int MAX_SIZE = 4096;
-	
+
 	private LZW() {
 	}
 
