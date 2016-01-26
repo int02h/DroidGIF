@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class LZW {
+	private final static int MAX_SIZE = 4096;
+	
 	private LZW() {
 	}
-
-	private final static int MAX_SIZE = 4096;
 
 	public static int decompress(final InputStream inputStream, final int minCodeSize, final byte[] indexStream) throws IOException {
 		int codeSize = minCodeSize;
