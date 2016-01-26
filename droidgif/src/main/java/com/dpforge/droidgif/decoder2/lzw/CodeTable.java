@@ -26,16 +26,6 @@ class CodeTable {
 		return mEndCode;
 	}
 
-	int getSizeBitsCount() {
-		int count = 0;
-		int value = mData.size();
-		while (value > 0) {
-			value >>= 1;
-			count++;
-		}
-		return count;
-	}
-
 	void init() {
 		mData.clear();
 		for (int i = 0; i < mColorAmount; ++i) {

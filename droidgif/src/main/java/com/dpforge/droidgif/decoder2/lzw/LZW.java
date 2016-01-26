@@ -16,11 +16,13 @@ public class LZW {
 		final List<Integer> indexStream = new ArrayList<>();
 
 		int prevCode = -1;
+		int threshold = (1 << codeSize);
 		while (true) {
 			int code = codeStream.nextValue();
 			if (code == codeTable.clearCode()) {
 				codeTable.init();
 				codeSize = minCodeSize;
+				threshold = (1 << codeSize);
 				codeStream.setCodeSize(minCodeSize);
 				prevCode = codeStream.nextValue();
 				indexStream.addAll(codeTable.get(prevCode));
@@ -40,8 +42,12 @@ public class LZW {
 					indexStream.addAll(k);
 					codeTable.add(k);
 				}
-				codeSize = Math.min(12, Math.max(codeSize, codeTable.getSizeBitsCount()));
-				codeStream.setCodeSize(codeSize);
+
+				if (codeTable.size() >= threshold) {
+					threshold <<= 1;
+					codeSize++;
+					codeStream.setCodeSize(codeSize);
+				}
 				prevCode = code;
 			}
 		}
