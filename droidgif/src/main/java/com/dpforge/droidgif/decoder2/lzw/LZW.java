@@ -40,7 +40,7 @@ public class LZW {
 					indexStream.addAll(k);
 					codeTable.add(k);
 				}
-				codeSize = Math.max(codeSize, codeTable.getSizeBitsCount());
+				codeSize = Math.min(12, Math.max(codeSize, codeTable.getSizeBitsCount()));
 				codeStream.setCodeSize(codeSize);
 				prevCode = code;
 			}
