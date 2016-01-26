@@ -9,47 +9,73 @@ public class LZW {
 	private LZW() {
 	}
 
-	public static List<Integer> decompress(final InputStream inputStream, final int minCodeSize, final int colorAmount) throws IOException {
-		int codeSize = minCodeSize;
-		final CodeTable codeTable = new CodeTable(colorAmount);
-		final CodeStream codeStream = new CodeStream(inputStream, codeSize);
-		final List<Integer> indexStream = new ArrayList<>();
+	private final static int MAX_SIZE = 4096;
 
+	public static List<Integer> decompress(final InputStream inputStream, final int minCodeSize, final int pixelsCount) throws IOException {
+		int codeSize = minCodeSize;
+		final CodeStream codeStream = new CodeStream(inputStream, codeSize);
+		final List<Integer> indexStream = new ArrayList<>(pixelsCount);
+
+		int code;
+		int clearCode = 1 << (minCodeSize - 1);
+		int endCode = clearCode + 1;
+		int lastIndex = endCode;
 		int prevCode = -1;
 		int threshold = (1 << codeSize);
-		while (true) {
-			int code = codeStream.nextValue();
-			if (code == codeTable.clearCode()) {
-				codeTable.init();
-				codeSize = minCodeSize;
-				threshold = (1 << codeSize);
-				codeStream.setCodeSize(minCodeSize);
-				prevCode = codeStream.nextValue();
-				indexStream.addAll(codeTable.get(prevCode));
-			} else if (code == codeTable.endCode() || code < 0) {
-				break;
-			} else {
-				if (code < codeTable.size()) { // code is in the code table
-					indexStream.addAll(codeTable.get(code));
-					List<Integer> k = new ArrayList<>();
-					k.add(codeTable.get(code).get(0));
-					k.addAll(0, codeTable.get(prevCode));
-					codeTable.add(k);
-				} else { // not in code table
-					List<Integer> k = new ArrayList<>();
-					k.add(codeTable.get(prevCode).get(0));
-					k.addAll(0, codeTable.get(prevCode));
-					indexStream.addAll(k);
-					codeTable.add(k);
-				}
 
-				if (codeTable.size() >= threshold && threshold < CodeTable.MAX_SIZE) {
-					threshold <<= 1;
-					codeSize++;
-					codeStream.setCodeSize(codeSize);
-				}
-				prevCode = code;
+		short[] prefix = new short[MAX_SIZE];
+		byte[] suffix = new byte[MAX_SIZE];
+
+		for (code = 0; code < clearCode; ++code) {
+			suffix[code] = (byte) code;
+			prefix[code] = -1;
+		}
+
+		while (true) {
+			code = codeStream.nextValue();
+			if (code == clearCode) {
+				codeSize = minCodeSize;
+				codeStream.setCodeSize(codeSize);
+				threshold = (1 << codeSize);
+				lastIndex = endCode;
+				prevCode = codeStream.nextValue();
+				indexStream.add((int) suffix[prevCode]);
+				continue;
 			}
+			if (code == endCode) {
+				break;
+			}
+
+			int k;
+			if (code <= lastIndex) { // code is in the code table
+				int tmp = code;
+				k = suffix[tmp];
+				while (tmp >= 0) {
+					k = suffix[tmp];
+					indexStream.add(k);
+					tmp = prefix[tmp];
+				}
+			} else { // not in code table
+				int tmp = prevCode;
+				k = suffix[tmp];
+				while (tmp >= 0) {
+					k = suffix[tmp];
+					indexStream.add(k);
+					tmp = prefix[tmp];
+				}
+				indexStream.add(k);
+			}
+
+			lastIndex++;
+			prefix[lastIndex] = (short) prevCode;
+			suffix[lastIndex] = (byte) k;
+
+			if (lastIndex + 1 >= threshold && threshold < CodeTable.MAX_SIZE) {
+				threshold <<= 1;
+				codeSize++;
+				codeStream.setCodeSize(codeSize);
+			}
+			prevCode = code;
 		}
 
 		return indexStream;

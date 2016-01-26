@@ -85,7 +85,7 @@ class TableBasedImage extends DecoderReader {
 			public int read() throws IOException {
 				return subStream.read();
 			}
-		}, minCodeSize + 1, colorTable().size());
+		}, minCodeSize + 1, mWidth*mHeight);
 
 		if (subStream.read() != -1) { // read last zero byte
 			throw new DecoderException(
