@@ -17,7 +17,7 @@ class TableBasedImage extends DecoderReader {
 
 	private ColorTable mLocalColorTable;
 	private final ColorTable mGlobalColorTable;
-	private List<Integer> mColorIndices;
+	private byte[] mColorIndices;
 
 	TableBasedImage(final ColorTable globalColorTable) {
 		mGlobalColorTable = globalColorTable;
@@ -51,7 +51,7 @@ class TableBasedImage extends DecoderReader {
 		return mLocalColorTable;
 	}
 
-	public List<Integer> colorIndices() {
+	public byte[] colorIndices() {
 		return mColorIndices;
 	}
 
@@ -80,12 +80,14 @@ class TableBasedImage extends DecoderReader {
 	private void readImageData(final BinaryStream stream) throws IOException, DecoderException {
 		final int minCodeSize = stream.readByte();
 		final SubBlocksInputStream subStream = new SubBlocksInputStream(stream);
-		mColorIndices = LZW.decompress(new InputStream() {
+		mColorIndices = new byte[mWidth*mHeight];
+
+		final int actualPixelsCount = LZW.decompress(new InputStream() {
 			@Override
 			public int read() throws IOException {
 				return subStream.read();
 			}
-		}, minCodeSize + 1, mWidth*mHeight);
+		}, minCodeSize + 1, mColorIndices);
 
 		if (subStream.read() != -1) { // read last zero byte
 			throw new DecoderException(
@@ -94,7 +96,7 @@ class TableBasedImage extends DecoderReader {
 			);
 		}
 
-		if (mColorIndices.size() != mWidth*mHeight)
+		if (actualPixelsCount != mWidth*mHeight)
 			throw new DecoderException(
 					DecoderException.ERROR_WRONG_IMAGE_DATA,
 					"Wrong size of color indices list"

@@ -11,7 +11,7 @@ public class GIFDecoderTest {
 	@Test
 	public void testCreate() throws Exception {
 		long startTime = System.currentTimeMillis();
-		int count = 10000;
+		int count = 5000;
 		for (int i = 0; i < count; ++i) {
 			final InputStream inputStream = getClass().getClassLoader().getResourceAsStream("earthquake.gif");
 			final GIFDecoder decoder = new GIFDecoder(inputStream);

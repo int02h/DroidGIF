@@ -13,7 +13,7 @@ public class GIFImageFrame {
 	private final DisposalMethod mDisposalMethod;
 
 	private final ColorTable mColorTable;
-	private final List<Integer> mColorIndices;
+	private final byte[] mColorIndices;
 
 	GIFImageFrame(final GIFImage gifImage, final TableBasedImage imageData, final GraphicControlExtension imageExtension) {
 		mImage = gifImage;
@@ -59,7 +59,7 @@ public class GIFImageFrame {
 	}
 
 	public int getColor(int x, int y) {
-		int colorIndex = mColorIndices.get(y*mWidth + x);
+		byte colorIndex = mColorIndices[y*mWidth + x];
 		return mColorTable.getColor(colorIndex);
 	}
 }
