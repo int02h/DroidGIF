@@ -1,5 +1,6 @@
 package com.dpforge.droidgif;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.view.SurfaceHolder;
@@ -11,11 +12,11 @@ class RendererThread extends Thread {
 	private final SurfaceHolder mHolder;
 	private boolean mRunning;
 	private GIFImage mImage;
-	private int[][] mBuffer;
+	private int[] mBuffer;
+	private Bitmap mFrameBitmap;
 	private final Paint mPaint;
 
 	private long mTotalDiff;
-	private long mLastDrawTime;
 	private int mFrameIndex;
 
 	RendererThread(final SurfaceHolder holder) {
@@ -31,12 +32,13 @@ class RendererThread extends Thread {
 
 	void setImage(final GIFImage image) {
 		mImage = image;
-		mBuffer = new int[image.height()][image.width()];
+		mBuffer = new int[image.height()*image.width()];
+		mFrameBitmap = Bitmap.createBitmap(image.width(), image.height(), Bitmap.Config.ARGB_8888);
 	}
 
 	@Override
 	public void run() {
-		mLastDrawTime = System.currentTimeMillis();
+		long lastDrawTime = System.currentTimeMillis();
 		while (mRunning) {
 			Canvas canvas = null;
 			try {
@@ -46,8 +48,8 @@ class RendererThread extends Thread {
 					prepareBuffer(frame);
 					drawBuffer(canvas);
 					disposeBuffer(frame);
-					mTotalDiff += System.currentTimeMillis() - mLastDrawTime;
-					mLastDrawTime = System.currentTimeMillis();
+					mTotalDiff += System.currentTimeMillis() - lastDrawTime;
+					lastDrawTime = System.currentTimeMillis();
 
 					if (mTotalDiff > frame.delay()*10) {
 						mFrameIndex = (mFrameIndex + 1)%mImage.framesCount();
@@ -64,21 +66,17 @@ class RendererThread extends Thread {
 
 	private void prepareBuffer(final GIFImageFrame frame) {
 		for (int y = 0; y < frame.height(); ++y) {
-			int[] row = mBuffer[frame.top() + y];
 			for (int x = 0; x < frame.width(); ++x) {
-				row[frame.left() + x] = frame.getColor(x, y);
+				int left = frame.left() + x;
+				int top = frame.top() + y;
+				mBuffer[top*mImage.width() + left] = frame.getColor(x, y) | 0xFF000000;
 			}
 		}
 	}
 
 	private void drawBuffer(final Canvas canvas) {
-		for (int y = 0; y < mBuffer.length; ++y) {
-			for (int x = 0; x < mBuffer[0].length; ++x) {
-				final int color = mBuffer[y][x];
-				mPaint.setColor(color | 0xFF000000);
-				canvas.drawPoint(x, y, mPaint);
-			}
-		}
+		mFrameBitmap.setPixels(mBuffer, 0, mImage.width(), 0, 0, mImage.width(), mImage.height());
+		canvas.drawBitmap(mFrameBitmap, 0, 0, mPaint);
 	}
 
 	private void disposeBuffer(final GIFImageFrame frame) {
@@ -88,10 +86,8 @@ class RendererThread extends Thread {
 				// DO NOTHING
 				break;
 			case RESTORE_BACKGROUND:
-				for (int y = 0; y < mBuffer.length; ++y) {
-					for (int x = 0; x < mBuffer[0].length; ++x) {
-						mBuffer[y][x] = mImage.backgroundColor();
-					}
+				for (int i = 0; i < mBuffer.length; ++i) {
+					mBuffer[i] = mImage.backgroundColor();
 				}
 				break;
 			case RESTORE_PREVIOUS:
