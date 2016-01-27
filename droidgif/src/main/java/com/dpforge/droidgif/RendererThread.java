@@ -69,7 +69,9 @@ class RendererThread extends Thread {
 			for (int x = 0; x < frame.width(); ++x) {
 				int left = frame.left() + x;
 				int top = frame.top() + y;
-				mBuffer[top*mImage.width() + left] = frame.getColor(x, y) | 0xFF000000;
+				if (!frame.isTransparentPixel(x, y)) {
+					mBuffer[top*mImage.width() + left] = frame.getColor(x, y) | 0xFF000000;
+				}
 			}
 		}
 	}

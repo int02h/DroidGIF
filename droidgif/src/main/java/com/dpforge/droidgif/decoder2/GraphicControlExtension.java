@@ -45,7 +45,7 @@ class GraphicControlExtension extends DecoderReader {
 		final int flag = stream.readByte();
 		mDisposalMethod = DisposalMethod.fromInt((flag & 0x1C) >> 2);
 		mUserInput = ((flag & 0x02) == 0x02);
-		mTransparentColor = ((flag & 0x02) == 0x02);
+		mTransparentColor = ((flag & 0x01) == 0x01);
 
 		mDelay = stream.readInt16();
 		mTransparencyColorIndex = stream.readByte();

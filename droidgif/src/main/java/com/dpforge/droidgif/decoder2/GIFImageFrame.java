@@ -14,6 +14,7 @@ public class GIFImageFrame {
 
 	private final ColorTable mColorTable;
 	private final byte[] mColorIndices;
+	private final int mTransparentColorIndex;
 
 	GIFImageFrame(final GIFImage gifImage, final TableBasedImage imageData, final GraphicControlExtension imageExtension) {
 		mImage = gifImage;
@@ -28,9 +29,13 @@ public class GIFImageFrame {
 		if (imageExtension != null) {
 			mDelay = imageExtension.delay();
 			mDisposalMethod = imageExtension.disposalMethod();
+			mTransparentColorIndex = (imageExtension.hasTransparentColor()
+					? imageExtension.transparencyColorIndex()
+					: -1);
 		} else {
 			mDelay = 0;
 			mDisposalMethod = DisposalMethod.NOT_SPECIFIED;
+			mTransparentColorIndex = -1;
 		}
 	}
 
@@ -56,6 +61,11 @@ public class GIFImageFrame {
 
 	public DisposalMethod disposalMethod() {
 		return mDisposalMethod;
+	}
+
+	public boolean isTransparentPixel(int x, int y) {
+		int colorIndex = (mColorIndices[y*mWidth + x] & 0xFF);
+		return colorIndex == mTransparentColorIndex;
 	}
 
 	public int getColor(int x, int y) {
