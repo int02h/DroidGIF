@@ -16,7 +16,7 @@ public class LZW {
 		int code;
 		int clearCode = 1 << (minCodeSize - 1);
 		int endCode = clearCode + 1;
-		int lastIndex = endCode;
+		int lastIndex = endCode + 1;
 		int prevCode = -1;
 		int threshold = (1 << codeSize);
 		int resultIndex = 0;
@@ -35,7 +35,7 @@ public class LZW {
 				codeSize = minCodeSize;
 				codeStream.setCodeSize(codeSize);
 				threshold = (1 << codeSize);
-				lastIndex = endCode;
+				lastIndex = endCode + 1;
 				prevCode = codeStream.nextValue();
 				indexStream[resultIndex++] = suffix[prevCode];
 				continue;
@@ -45,7 +45,7 @@ public class LZW {
 			}
 
 			byte k;
-			if (code <= lastIndex) { // code is in the code table
+			if (code < lastIndex) { // code is in the code table
 				int tmp = code;
 				k = suffix[tmp];
 				while (tmp >= 0) {
@@ -64,14 +64,16 @@ public class LZW {
 				indexStream[resultIndex++] = k;
 			}
 
-			lastIndex++;
-			prefix[lastIndex] = (short) prevCode;
-			suffix[lastIndex] = k;
+			if (lastIndex < MAX_SIZE) {
+				prefix[lastIndex] = (short) prevCode;
+				suffix[lastIndex] = k;
+				lastIndex++;
 
-			if (lastIndex + 1 >= threshold && threshold < MAX_SIZE) {
-				threshold <<= 1;
-				codeSize++;
-				codeStream.setCodeSize(codeSize);
+				if (lastIndex >= threshold && lastIndex < MAX_SIZE) {
+					threshold <<= 1;
+					codeSize++;
+					codeStream.setCodeSize(codeSize);
+				}
 			}
 			prevCode = code;
 		}
