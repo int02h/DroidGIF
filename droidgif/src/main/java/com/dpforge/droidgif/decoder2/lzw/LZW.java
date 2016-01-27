@@ -56,6 +56,9 @@ public class LZW {
 					stack[stackTop++] = k;
 					tmp = prefix[tmp];
 				}
+				while (stackTop > 0) {
+					indexStream[resultIndex++] = stack[--stackTop];
+				}
 			} else { // not in code table
 				int tmp = prevCode;
 				k = suffix[tmp];
@@ -64,11 +67,10 @@ public class LZW {
 					stack[stackTop++] = k;
 					tmp = prefix[tmp];
 				}
-				stack[stackTop++] = k;
-			}
-
-			while (stackTop > 0) {
-				indexStream[resultIndex++] = stack[--stackTop];
+				while (stackTop > 0) {
+					indexStream[resultIndex++] = stack[--stackTop];
+				}
+				indexStream[resultIndex++] = k;
 			}
 
 			if (lastIndex < MAX_SIZE) {
