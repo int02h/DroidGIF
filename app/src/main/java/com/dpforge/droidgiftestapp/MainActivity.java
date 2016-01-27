@@ -7,23 +7,22 @@ import android.view.View;
 import com.dpforge.droidgif.GIFImageView;
 
 public class MainActivity extends AppCompatActivity {
-	private GIFImageView[] mGifViews;
+	private GIFImageView mGifView;
+	private int mGifIndex = 0;
+	private int[] mGifList = new int[] {
+			R.raw.big_with_comment, R.raw.rotating_earth, R.raw.earthquake
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		mGifViews = new GIFImageView[]{
-				(GIFImageView) findViewById(R.id.gif1),
-				(GIFImageView) findViewById(R.id.gif2),
-				(GIFImageView) findViewById(R.id.gif3)
-		};
+		mGifView = (GIFImageView) findViewById(R.id.gif);
 	}
 
-	public void onLoadGifsClick(View view) {
-		mGifViews[0].setImageResource(R.raw.big_with_comment);
-		mGifViews[1].setImageResource(R.raw.rotating_earth);
-		mGifViews[2].setImageResource(R.raw.earthquake);
+	public void onNextGifClick(View view) {
+		mGifView.setImageResource(mGifList[mGifIndex]);
+		mGifIndex = (mGifIndex + 1)%mGifList.length;
 	}
 }

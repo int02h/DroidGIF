@@ -19,25 +19,11 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Load GIFs"
-        android:onClick="onLoadGifsClick"/>
+        android:text="Next GIF"
+        android:onClick="onNextGifClick"/>
 
     <com.dpforge.droidgif.GIFImageView
-        android:id="@+id/gif1"
-        android:layout_gravity="center_horizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"/>
-
-    <com.dpforge.droidgif.GIFImageView
-        android:id="@+id/gif2"
-        android:layout_gravity="center_horizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"/>
-
-    <com.dpforge.droidgif.GIFImageView
-        android:id="@+id/gif3"
+        android:id="@+id/gif"
         android:layout_gravity="center_horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
