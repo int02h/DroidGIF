@@ -10,7 +10,7 @@ import com.dpforge.droidgif.decoder2.GIFImageFrame;
 
 class RendererThread extends Thread {
 	private final SurfaceHolder mHolder;
-	private boolean mRunning;
+	private volatile boolean mRunning;
 	private GIFImage mImage;
 	private int[] mBuffer;
 	private Bitmap mFrameBitmap;
@@ -31,9 +31,13 @@ class RendererThread extends Thread {
 	}
 
 	void setImage(final GIFImage image) {
-		mImage = image;
-		mBuffer = new int[image.height()*image.width()];
-		mFrameBitmap = Bitmap.createBitmap(image.width(), image.height(), Bitmap.Config.ARGB_8888);
+		synchronized (RendererThread.this) {
+			mImage = image;
+			mBuffer = new int[image.height()*image.width()];
+			mFrameBitmap = Bitmap.createBitmap(image.width(), image.height(), Bitmap.Config.ARGB_8888);
+			mFrameIndex = 0;
+			mTotalDiff = 0;
+		}
 	}
 
 	@Override
@@ -43,17 +47,19 @@ class RendererThread extends Thread {
 			Canvas canvas = null;
 			try {
 				canvas = mHolder.lockCanvas();
-				if (canvas != null && mImage != null) {
-					final GIFImageFrame frame = mImage.getFrame(mFrameIndex);
-					prepareBuffer(frame);
-					drawBuffer(canvas);
-					disposeBuffer(frame);
-					mTotalDiff += System.currentTimeMillis() - lastDrawTime;
-					lastDrawTime = System.currentTimeMillis();
+				synchronized (RendererThread.this) {
+					if (canvas != null && mImage != null) {
+						final GIFImageFrame frame = mImage.getFrame(mFrameIndex);
+						prepareBuffer(frame);
+						drawBuffer(canvas);
+						disposeBuffer(frame);
+						mTotalDiff += System.currentTimeMillis() - lastDrawTime;
+						lastDrawTime = System.currentTimeMillis();
 
-					if (mTotalDiff > frame.delay()*10) {
-						mFrameIndex = (mFrameIndex + 1)%mImage.framesCount();
-						mTotalDiff = 0;
+						if (mTotalDiff >= frame.delay()*10) {
+							mFrameIndex = (mFrameIndex + 1)%mImage.framesCount();
+							mTotalDiff = 0;
+						}
 					}
 				}
 			} finally {
