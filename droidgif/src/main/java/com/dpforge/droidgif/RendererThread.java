@@ -2,7 +2,6 @@ package com.dpforge.droidgif;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.view.SurfaceHolder;
 
 import com.dpforge.droidgif.decoder2.GIFImage;
@@ -11,19 +10,15 @@ import com.dpforge.droidgif.decoder2.GIFImageFrame;
 class RendererThread extends Thread {
 	private final SurfaceHolder mHolder;
 	private volatile boolean mRunning;
+
 	private GIFImage mImage;
 	private int[] mBuffer;
 	private Bitmap mFrameBitmap;
-	private final Paint mPaint;
-
-	private long mTotalDiff;
 	private int mFrameIndex;
+	private long mTotalDiff;
 
 	RendererThread(final SurfaceHolder holder) {
 		mHolder = holder;
-
-		mPaint = new Paint();
-		mPaint.setStyle(Paint.Style.FILL);
 	}
 
 	void setRunning(boolean running) {
@@ -84,7 +79,7 @@ class RendererThread extends Thread {
 
 	private void drawBuffer(final Canvas canvas) {
 		mFrameBitmap.setPixels(mBuffer, 0, mImage.width(), 0, 0, mImage.width(), mImage.height());
-		canvas.drawBitmap(mFrameBitmap, 0, 0, mPaint);
+		canvas.drawBitmap(mFrameBitmap, 0, 0, null);
 	}
 
 	private void disposeBuffer(final GIFImageFrame frame) {
