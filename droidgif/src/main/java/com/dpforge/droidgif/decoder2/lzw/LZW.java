@@ -29,6 +29,9 @@ public class LZW {
 			prefix[code] = -1;
 		}
 
+		byte[] stack = new byte[MAX_SIZE + 1];
+		int stackTop = 0;
+
 		while (true) {
 			code = codeStream.nextValue();
 			if (code == clearCode) {
@@ -50,7 +53,7 @@ public class LZW {
 				k = suffix[tmp];
 				while (tmp >= 0) {
 					k = suffix[tmp];
-					indexStream[resultIndex++] = k;
+					stack[stackTop++] = k;
 					tmp = prefix[tmp];
 				}
 			} else { // not in code table
@@ -58,10 +61,14 @@ public class LZW {
 				k = suffix[tmp];
 				while (tmp >= 0) {
 					k = suffix[tmp];
-					indexStream[resultIndex++] = k;
+					stack[stackTop++] = k;
 					tmp = prefix[tmp];
 				}
-				indexStream[resultIndex++] = k;
+				stack[stackTop++] = k;
+			}
+
+			while (stackTop > 0) {
+				indexStream[resultIndex++] = stack[--stackTop];
 			}
 
 			if (lastIndex < MAX_SIZE) {
