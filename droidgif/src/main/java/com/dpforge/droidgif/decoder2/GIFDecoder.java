@@ -13,6 +13,7 @@ public class GIFDecoder {
 	private final static int EXTENSION_LABEL = 0x21;
 	private final static int EXTENSION_APPLICATION = 0xFF;
 	private final static int EXTENSION_GRAPHIC_CONTROL = 0xF9;
+	private final static int EXTENSION_COMMENT = 0xFE;
 	private final static int TABLE_BASED_IMAGE_LABEL = 0x2C;
 
 	private final BinaryStream mStream;
@@ -64,6 +65,9 @@ public class GIFDecoder {
 						case EXTENSION_GRAPHIC_CONTROL:
 							graphicControlDecoder = new GraphicControlExtension();
 							graphicControlDecoder.read(mStream);
+							break;
+						case EXTENSION_COMMENT:
+							new CommentExtension().read(mStream);
 							break;
 						default:
 							throw new DecoderException(
