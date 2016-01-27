@@ -11,7 +11,7 @@ public class MainActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		final GIFImageView gif = new GIFImageView(this);
-		gif.setImageResource(R.raw.rotating_earth);
+		gif.setImageResource(R.raw.big_with_comment);
 		setContentView(gif);
 	}
 }
