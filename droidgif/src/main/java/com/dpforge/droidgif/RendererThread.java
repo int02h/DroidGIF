@@ -7,9 +7,13 @@ import android.view.SurfaceHolder;
 import com.dpforge.droidgif.decoder2.GIFImage;
 import com.dpforge.droidgif.decoder2.GIFImageFrame;
 
+import java.util.Arrays;
+
 class RendererThread extends Thread {
 	private final SurfaceHolder mHolder;
 	private volatile boolean mRunning;
+	private volatile State mState = State.INIT;
+	private final Object mMonitor = new Object();
 
 	private GIFImage mImage;
 	private int[] mBuffer;
@@ -30,9 +34,49 @@ class RendererThread extends Thread {
 			mImage = image;
 			mBuffer = new int[image.height()*image.width()];
 			mFrameBitmap = Bitmap.createBitmap(image.width(), image.height(), Bitmap.Config.ARGB_8888);
-			mFrameIndex = 0;
-			mTotalDiff = 0;
+			mState = State.INIT;
 		}
+		waitFrameRendered();
+	}
+
+	void startRendering() {
+		synchronized (RendererThread.this) {
+			if (mState == State.INIT || mState == State.STOPPED) {
+				mFrameIndex = 0;
+				mTotalDiff = 0;
+				mState = State.RENDERING;
+			}
+		}
+		waitFrameRendered();
+	}
+
+	void stopRendering() {
+		synchronized (RendererThread.this) {
+			if (mState == State.PAUSED || mState == State.RENDERING) {
+				mFrameIndex = 0;
+				mTotalDiff = 0;
+				mState = State.STOPPED;
+			}
+		}
+		waitFrameRendered();
+	}
+
+	void pauseRendering() {
+		synchronized (RendererThread.this) {
+			if (mState == State.RENDERING) {
+				mState = State.PAUSED;
+			}
+		}
+		waitFrameRendered();
+	}
+
+	void resumeRendering() {
+		synchronized (RendererThread.this) {
+			if (mState == State.PAUSED) {
+				mState = State.RENDERING;
+			}
+		}
+		waitFrameRendered();
 	}
 
 	@Override
@@ -43,23 +87,58 @@ class RendererThread extends Thread {
 			try {
 				canvas = mHolder.lockCanvas();
 				synchronized (RendererThread.this) {
-					if (canvas != null && mImage != null) {
-						final GIFImageFrame frame = mImage.getFrame(mFrameIndex);
-						prepareBuffer(frame);
-						drawBuffer(canvas);
-						disposeBuffer(frame);
-						mTotalDiff += System.currentTimeMillis() - lastDrawTime;
-						lastDrawTime = System.currentTimeMillis();
+					switch (mState) {
+						case RENDERING:
+							if (canvas != null) {
+								final GIFImageFrame frame = mImage.getFrame(mFrameIndex);
+								prepareBuffer(frame);
+								drawBuffer(canvas);
+								disposeBuffer(frame);
 
-						if (mTotalDiff >= frame.delay()*10) {
-							mFrameIndex = (mFrameIndex + 1)%mImage.framesCount();
-							mTotalDiff = 0;
-						}
+								mTotalDiff += System.currentTimeMillis() - lastDrawTime;
+								lastDrawTime = System.currentTimeMillis();
+
+								if (mTotalDiff >= frame.delay()*10) {
+									mFrameIndex = (mFrameIndex + 1)%mImage.framesCount();
+									mTotalDiff = 0;
+								}
+							}
+							break;
+						case PAUSED:
+							if (canvas != null) {
+								final GIFImageFrame frame = mImage.getFrame(mFrameIndex);
+								prepareBuffer(frame);
+								drawBuffer(canvas);
+								disposeBuffer(frame);
+							}
+							break;
+						case STOPPED:
+						case INIT:
+							if (canvas != null) {
+								Arrays.fill(mBuffer, 0xFF000000);
+								drawBuffer(canvas);
+							}
+							break;
 					}
 				}
 			} finally {
 				if (canvas != null) {
 					mHolder.unlockCanvasAndPost(canvas);
+				}
+			}
+
+			synchronized (mMonitor) {
+				mMonitor.notifyAll();
+			}
+		}
+	}
+
+	private void waitFrameRendered() {
+		synchronized (mMonitor) {
+			if (mRunning) {
+				try {
+					mMonitor.wait(1000);
+				} catch (InterruptedException ignored) {
 				}
 			}
 		}
@@ -97,5 +176,12 @@ class RendererThread extends Thread {
 				// TODO: implement
 				break;
 		}
+	}
+
+	private enum State {
+		INIT,
+		RENDERING,
+		PAUSED,
+		STOPPED
 	}
 }

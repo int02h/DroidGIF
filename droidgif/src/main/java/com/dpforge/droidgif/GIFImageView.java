@@ -80,6 +80,22 @@ public class GIFImageView extends SurfaceView {
 		}
 	}
 
+	public void start() {
+		mRendererThread.startRendering();
+	}
+
+	public void stop() {
+		mRendererThread.stopRendering();
+	}
+
+	public void pause() {
+		mRendererThread.pauseRendering();
+	}
+
+	public void resume() {
+		mRendererThread.resumeRendering();
+	}
+
 	private void init() {
 		getHolder().addCallback(new SurfaceHolderCallback());
 		mRendererThread = new RendererThread(getHolder());
