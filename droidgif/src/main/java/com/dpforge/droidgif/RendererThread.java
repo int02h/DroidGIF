@@ -12,14 +12,9 @@ import java.util.Arrays;
 class RendererThread extends Thread {
 	private final SurfaceHolder mHolder;
 	private volatile boolean mRunning;
-	private volatile State mState = State.INIT;
-	private final Object mMonitor = new Object();
 
-	private GIFImage mImage;
-	private int[] mBuffer;
-	private Bitmap mFrameBitmap;
-	private int mFrameIndex;
-	private long mTotalDiff;
+	private volatile CommandInfo mCommandInfo;
+	private final Object mCommandMonitor = new Object();
 
 	RendererThread(final SurfaceHolder holder) {
 		mHolder = holder;
@@ -29,147 +24,163 @@ class RendererThread extends Thread {
 		mRunning = running;
 	}
 
-	void setImage(final GIFImage image) {
-		synchronized (RendererThread.this) {
-			mImage = image;
-			mBuffer = new int[image.height()*image.width()];
-			mFrameBitmap = Bitmap.createBitmap(image.width(), image.height(), Bitmap.Config.ARGB_8888);
-			mState = State.INIT;
-		}
-		waitFrameRendered();
+	void executeCommand(final Command command) {
+		executeCommand(command, null);
 	}
 
-	void startRendering() {
-		synchronized (RendererThread.this) {
-			if (mState == State.INIT || mState == State.STOPPED) {
-				mFrameIndex = 0;
-				mTotalDiff = 0;
-				mState = State.RENDERING;
+	void executeCommand(final Command command, final GIFImage image) {
+		synchronized (mCommandMonitor) {
+			mCommandInfo = new CommandInfo(command, image);
+			try {
+				if (mRunning) {
+					mCommandMonitor.wait();
+				}
+			} catch (InterruptedException ignored) {
 			}
 		}
-		waitFrameRendered();
-	}
-
-	void stopRendering() {
-		synchronized (RendererThread.this) {
-			if (mState == State.PAUSED || mState == State.RENDERING) {
-				mFrameIndex = 0;
-				mTotalDiff = 0;
-				mState = State.STOPPED;
-			}
-		}
-		waitFrameRendered();
-	}
-
-	void pauseRendering() {
-		synchronized (RendererThread.this) {
-			if (mState == State.RENDERING) {
-				mState = State.PAUSED;
-			}
-		}
-		waitFrameRendered();
-	}
-
-	void resumeRendering() {
-		synchronized (RendererThread.this) {
-			if (mState == State.PAUSED) {
-				mState = State.RENDERING;
-			}
-		}
-		waitFrameRendered();
 	}
 
 	@Override
 	public void run() {
-		long lastDrawTime = System.currentTimeMillis();
+		final RenderContext context = new RenderContext();
+		context.lastDrawTime = System.currentTimeMillis();
+		context.state = RendererState.UNKNOWN;
+		context.frameIndex = 0;
+		context.totalDiff = 0;
+
 		while (mRunning) {
 			Canvas canvas = null;
 			try {
 				canvas = mHolder.lockCanvas();
-				synchronized (RendererThread.this) {
-					switch (mState) {
-						case RENDERING:
-							if (canvas != null) {
-								final GIFImageFrame frame = mImage.getFrame(mFrameIndex);
-								prepareBuffer(frame);
-								drawBuffer(canvas);
-								disposeBuffer(frame);
-
-								mTotalDiff += System.currentTimeMillis() - lastDrawTime;
-								lastDrawTime = System.currentTimeMillis();
-
-								if (mTotalDiff >= frame.delay()*10) {
-									mFrameIndex = (mFrameIndex + 1)%mImage.framesCount();
-									mTotalDiff = 0;
-								}
-							}
-							break;
-						case PAUSED:
-							if (canvas != null) {
-								final GIFImageFrame frame = mImage.getFrame(mFrameIndex);
-								prepareBuffer(frame);
-								drawBuffer(canvas);
-								disposeBuffer(frame);
-							}
-							break;
-						case STOPPED:
-						case INIT:
-							if (canvas != null) {
-								Arrays.fill(mBuffer, 0xFF000000);
-								drawBuffer(canvas);
-							}
-							break;
-					}
-				}
+				draw(canvas, context);
 			} finally {
 				if (canvas != null) {
 					mHolder.unlockCanvasAndPost(canvas);
 				}
 			}
 
-			synchronized (mMonitor) {
-				mMonitor.notifyAll();
-			}
+			processCommand(context);
 		}
 	}
 
-	private void waitFrameRendered() {
-		synchronized (mMonitor) {
-			if (mRunning) {
-				try {
-					mMonitor.wait(1000);
-				} catch (InterruptedException ignored) {
+	private void processCommand(final RenderContext context) {
+		synchronized (mCommandMonitor) {
+			if (mCommandInfo != null) {
+				if (canExecuteCommand(mCommandInfo.command, context.state)) {
+					switch (mCommandInfo.command) {
+						case SET_IMAGE:
+							context.image = mCommandInfo.data;
+							context.buffer = new int[context.image.height()*context.image.width()];
+							context.frameBitmap = Bitmap.createBitmap(context.image.width(),
+									context.image.height(), Bitmap.Config.ARGB_8888);
+							context.state = RendererState.INIT;
+							break;
+						case START:
+							context.frameIndex = 0;
+							context.totalDiff = 0;
+							context.state = RendererState.RENDERING;
+							break;
+						case STOP:
+							context.frameIndex = 0;
+							context.totalDiff = 0;
+							context.state = RendererState.STOPPED;
+							break;
+						case RESUME:
+							context.state = RendererState.RENDERING;
+							break;
+						case PAUSE:
+							context.state = RendererState.PAUSED;
+							break;
+					}
 				}
+
+				mCommandMonitor.notifyAll();
+				mCommandInfo = null;
 			}
 		}
 	}
 
-	private void prepareBuffer(final GIFImageFrame frame) {
+	private static boolean canExecuteCommand(final Command command, final RendererState state) {
+		switch (command) {
+			case SET_IMAGE:
+				return true;
+			case START:
+				return (state == RendererState.INIT || state == RendererState.STOPPED);
+			case STOP:
+				return (state == RendererState.PAUSED || state == RendererState.RENDERING);
+			case RESUME:
+				return (state == RendererState.PAUSED);
+			case PAUSE:
+				return (state == RendererState.RENDERING);
+			default:
+				return false;
+		}
+	}
+
+	private static void draw(final Canvas canvas, final RenderContext context) {
+		if (context.image != null) {
+			switch (context.state) {
+				case RENDERING:
+					if (canvas != null) {
+						final GIFImageFrame frame = context.image.getFrame(context.frameIndex);
+						prepareBuffer(frame, context);
+						drawBuffer(canvas, context);
+						disposeBuffer(frame, context);
+
+						context.totalDiff += System.currentTimeMillis() - context.lastDrawTime;
+						context.lastDrawTime = System.currentTimeMillis();
+
+						if (context.totalDiff >= frame.delay()*10) {
+							context.frameIndex = (context.frameIndex + 1)%context.image.framesCount();
+							context.totalDiff = 0;
+						}
+					}
+					break;
+				case PAUSED:
+					if (canvas != null) {
+						final GIFImageFrame frame = context.image.getFrame(context.frameIndex);
+						prepareBuffer(frame, context);
+						drawBuffer(canvas, context);
+						disposeBuffer(frame, context);
+					}
+					break;
+				case STOPPED:
+				case INIT:
+					if (canvas != null) {
+						Arrays.fill(context.buffer, 0xFF000000);
+						drawBuffer(canvas, context);
+					}
+					break;
+			}
+		}
+	}
+
+	private static void prepareBuffer(final GIFImageFrame frame, final RenderContext context) {
 		for (int y = 0; y < frame.height(); ++y) {
 			for (int x = 0; x < frame.width(); ++x) {
 				int left = frame.left() + x;
 				int top = frame.top() + y;
 				if (!frame.isTransparentPixel(x, y)) {
-					mBuffer[top*mImage.width() + left] = frame.getColor(x, y) | 0xFF000000;
+					context.buffer[top*context.image.width() + left] = frame.getColor(x, y) | 0xFF000000;
 				}
 			}
 		}
 	}
 
-	private void drawBuffer(final Canvas canvas) {
-		mFrameBitmap.setPixels(mBuffer, 0, mImage.width(), 0, 0, mImage.width(), mImage.height());
-		canvas.drawBitmap(mFrameBitmap, 0, 0, null);
+	private static void drawBuffer(final Canvas canvas, final RenderContext context) {
+		context.frameBitmap.setPixels(context.buffer, 0, context.image.width(), 0, 0, context.image.width(), context.image.height());
+		canvas.drawBitmap(context.frameBitmap, 0, 0, null);
 	}
 
-	private void disposeBuffer(final GIFImageFrame frame) {
+	private static void disposeBuffer(final GIFImageFrame frame, final RenderContext context) {
 		switch (frame.disposalMethod()) {
 			case NOT_SPECIFIED:
 			case NO_DISPOSE:
 				// DO NOTHING
 				break;
 			case RESTORE_BACKGROUND:
-				for (int i = 0; i < mBuffer.length; ++i) {
-					mBuffer[i] = mImage.backgroundColor();
+				for (int i = 0; i < context.buffer.length; ++i) {
+					context.buffer[i] = context.image.backgroundColor();
 				}
 				break;
 			case RESTORE_PREVIOUS:
@@ -178,10 +189,39 @@ class RendererThread extends Thread {
 		}
 	}
 
-	private enum State {
+	private enum RendererState {
+		UNKNOWN,
 		INIT,
 		RENDERING,
 		PAUSED,
 		STOPPED
+	}
+
+	private static class CommandInfo {
+		final Command command;
+		final GIFImage data;
+
+		private CommandInfo(final Command command, final GIFImage data) {
+			this.command = command;
+			this.data = data;
+		}
+	}
+
+	private static class RenderContext {
+		long lastDrawTime;
+		GIFImage image;
+		RendererState state = RendererState.UNKNOWN;
+		int[] buffer;
+		Bitmap frameBitmap;
+		int frameIndex = 0;
+		long totalDiff = 0;
+	}
+
+	public enum Command {
+		SET_IMAGE,
+		START,
+		STOP,
+		RESUME,
+		PAUSE
 	}
 }

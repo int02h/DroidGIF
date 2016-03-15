@@ -72,7 +72,7 @@ public class GIFImageView extends SurfaceView {
 			final GIFDecoder decoder = new GIFDecoder(bis);
 			mImage = decoder.decode();
 			bis.close();
-			mRendererThread.setImage(mImage);
+			mRendererThread.executeCommand(RendererThread.Command.SET_IMAGE, mImage);
 			requestLayout();
 			invalidate();
 		} catch (IOException | DecoderException  e) {
@@ -81,19 +81,19 @@ public class GIFImageView extends SurfaceView {
 	}
 
 	public void start() {
-		mRendererThread.startRendering();
+		mRendererThread.executeCommand(RendererThread.Command.START);
 	}
 
 	public void stop() {
-		mRendererThread.stopRendering();
+		mRendererThread.executeCommand(RendererThread.Command.STOP);
 	}
 
 	public void pause() {
-		mRendererThread.pauseRendering();
+		mRendererThread.executeCommand(RendererThread.Command.PAUSE);
 	}
 
 	public void resume() {
-		mRendererThread.resumeRendering();
+		mRendererThread.executeCommand(RendererThread.Command.RESUME);
 	}
 
 	private void init() {
