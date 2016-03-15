@@ -1,4 +1,4 @@
-package com.dpforge.droidgif.decoder2;
+package com.dpforge.droidgif.decoder;
 
 public class DecoderException extends Exception {
 	public final static int ERROR_WRONG_SIGNATURE       = 0xde001;

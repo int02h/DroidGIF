@@ -1,4 +1,4 @@
-package com.dpforge.droidgif.decoder2;
+package com.dpforge.droidgif.decoder;
 
 import java.util.ArrayList;
 import java.util.List;

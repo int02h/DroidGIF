@@ -1,4 +1,4 @@
-package com.dpforge.droidgif.decoder2;
+package com.dpforge.droidgif.decoder;
 
 public enum DisposalMethod {
 	NOT_SPECIFIED,

@@ -1,10 +1,9 @@
-package com.dpforge.droidgif.decoder2;
+package com.dpforge.droidgif.decoder;
 
-import com.dpforge.droidgif.decoder2.lzw.LZW;
+import com.dpforge.droidgif.decoder.lzw.LZW;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 class TableBasedImage extends DecoderReader {
 	private int mLeft;

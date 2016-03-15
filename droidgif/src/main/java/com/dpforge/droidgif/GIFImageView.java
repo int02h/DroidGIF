@@ -6,9 +6,9 @@ import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import com.dpforge.droidgif.decoder2.DecoderException;
-import com.dpforge.droidgif.decoder2.GIFDecoder;
-import com.dpforge.droidgif.decoder2.GIFImage;
+import com.dpforge.droidgif.decoder.DecoderException;
+import com.dpforge.droidgif.decoder.GIFDecoder;
+import com.dpforge.droidgif.decoder.GIFImage;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;

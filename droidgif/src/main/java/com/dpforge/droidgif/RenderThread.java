@@ -4,8 +4,8 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.view.SurfaceHolder;
 
-import com.dpforge.droidgif.decoder2.GIFImage;
-import com.dpforge.droidgif.decoder2.GIFImageFrame;
+import com.dpforge.droidgif.decoder.GIFImage;
+import com.dpforge.droidgif.decoder.GIFImageFrame;
 
 import java.util.Arrays;
 

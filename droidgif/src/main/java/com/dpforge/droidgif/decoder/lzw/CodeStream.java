@@ -1,4 +1,4 @@
-package com.dpforge.droidgif.decoder2.lzw;
+package com.dpforge.droidgif.decoder.lzw;
 
 import java.io.IOException;
 import java.io.InputStream;

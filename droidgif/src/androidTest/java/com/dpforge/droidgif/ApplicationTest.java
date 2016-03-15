@@ -4,7 +4,7 @@ import android.app.Application;
 import android.test.ApplicationTestCase;
 import android.util.Log;
 
-import com.dpforge.droidgif.decoder2.GIFDecoder;
+import com.dpforge.droidgif.decoder.GIFDecoder;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;

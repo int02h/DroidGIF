@@ -1,6 +1,4 @@
-package com.dpforge.droidgif.decoder2;
-
-import java.util.List;
+package com.dpforge.droidgif.decoder;
 
 public class GIFImageFrame {
 	private final GIFImage mImage;
