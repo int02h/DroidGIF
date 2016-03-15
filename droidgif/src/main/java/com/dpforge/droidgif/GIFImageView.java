@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class GIFImageView extends SurfaceView {
-	private RendererThread mRendererThread;
+	private RenderThread mRenderThread;
 	private GIFImage mImage;
 
 	public GIFImageView(final Context context) {
@@ -72,7 +72,7 @@ public class GIFImageView extends SurfaceView {
 			final GIFDecoder decoder = new GIFDecoder(bis);
 			mImage = decoder.decode();
 			bis.close();
-			mRendererThread.executeCommand(RendererThread.Command.SET_IMAGE, mImage);
+			mRenderThread.executeCommand(RenderThread.Command.SET_IMAGE, mImage);
 			requestLayout();
 			invalidate();
 		} catch (IOException | DecoderException  e) {
@@ -81,31 +81,31 @@ public class GIFImageView extends SurfaceView {
 	}
 
 	public void start() {
-		mRendererThread.executeCommand(RendererThread.Command.START);
+		mRenderThread.executeCommand(RenderThread.Command.START);
 	}
 
 	public void stop() {
-		mRendererThread.executeCommand(RendererThread.Command.STOP);
+		mRenderThread.executeCommand(RenderThread.Command.STOP);
 	}
 
 	public void pause() {
-		mRendererThread.executeCommand(RendererThread.Command.PAUSE);
+		mRenderThread.executeCommand(RenderThread.Command.PAUSE);
 	}
 
 	public void resume() {
-		mRendererThread.executeCommand(RendererThread.Command.RESUME);
+		mRenderThread.executeCommand(RenderThread.Command.RESUME);
 	}
 
 	private void init() {
 		getHolder().addCallback(new SurfaceHolderCallback());
-		mRendererThread = new RendererThread(getHolder());
+		mRenderThread = new RenderThread(getHolder());
 	}
 
 	private class SurfaceHolderCallback implements SurfaceHolder.Callback {
 		@Override
 		public void surfaceCreated(final SurfaceHolder holder) {
-			mRendererThread.setRunning(true);
-			mRendererThread.start();
+			mRenderThread.setRunning(true);
+			mRenderThread.start();
 		}
 
 		@Override
@@ -116,10 +116,10 @@ public class GIFImageView extends SurfaceView {
 		@Override
 		public void surfaceDestroyed(final SurfaceHolder holder) {
 			boolean retry = true;
-			mRendererThread.setRunning(false);
+			mRenderThread.setRunning(false);
 			while (retry) {
 				try {
-					mRendererThread.join();
+					mRenderThread.join();
 					retry = false;
 				} catch (InterruptedException ignored) {
 

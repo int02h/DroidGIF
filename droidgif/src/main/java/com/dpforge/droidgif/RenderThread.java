@@ -9,14 +9,14 @@ import com.dpforge.droidgif.decoder2.GIFImageFrame;
 
 import java.util.Arrays;
 
-class RendererThread extends Thread {
+class RenderThread extends Thread {
 	private final SurfaceHolder mHolder;
 	private volatile boolean mRunning;
 
 	private volatile CommandInfo mCommandInfo;
 	private final Object mCommandMonitor = new Object();
 
-	RendererThread(final SurfaceHolder holder) {
+	RenderThread(final SurfaceHolder holder) {
 		mHolder = holder;
 	}
 
@@ -44,7 +44,7 @@ class RendererThread extends Thread {
 	public void run() {
 		final RenderContext context = new RenderContext();
 		context.lastDrawTime = System.currentTimeMillis();
-		context.state = RendererState.UNKNOWN;
+		context.state = RenderState.UNKNOWN;
 		context.frameIndex = 0;
 		context.totalDiff = 0;
 
@@ -73,23 +73,23 @@ class RendererThread extends Thread {
 							context.buffer = new int[context.image.height()*context.image.width()];
 							context.frameBitmap = Bitmap.createBitmap(context.image.width(),
 									context.image.height(), Bitmap.Config.ARGB_8888);
-							context.state = RendererState.INIT;
+							context.state = RenderState.INIT;
 							break;
 						case START:
 							context.frameIndex = 0;
 							context.totalDiff = 0;
-							context.state = RendererState.RENDERING;
+							context.state = RenderState.RENDERING;
 							break;
 						case STOP:
 							context.frameIndex = 0;
 							context.totalDiff = 0;
-							context.state = RendererState.STOPPED;
+							context.state = RenderState.STOPPED;
 							break;
 						case RESUME:
-							context.state = RendererState.RENDERING;
+							context.state = RenderState.RENDERING;
 							break;
 						case PAUSE:
-							context.state = RendererState.PAUSED;
+							context.state = RenderState.PAUSED;
 							break;
 					}
 				}
@@ -100,18 +100,18 @@ class RendererThread extends Thread {
 		}
 	}
 
-	private static boolean canExecuteCommand(final Command command, final RendererState state) {
+	private static boolean canExecuteCommand(final Command command, final RenderState state) {
 		switch (command) {
 			case SET_IMAGE:
 				return true;
 			case START:
-				return (state == RendererState.INIT || state == RendererState.STOPPED);
+				return (state == RenderState.INIT || state == RenderState.STOPPED);
 			case STOP:
-				return (state == RendererState.PAUSED || state == RendererState.RENDERING);
+				return (state == RenderState.PAUSED || state == RenderState.RENDERING);
 			case RESUME:
-				return (state == RendererState.PAUSED);
+				return (state == RenderState.PAUSED);
 			case PAUSE:
-				return (state == RendererState.RENDERING);
+				return (state == RenderState.RENDERING);
 			default:
 				return false;
 		}
@@ -189,7 +189,7 @@ class RendererThread extends Thread {
 		}
 	}
 
-	private enum RendererState {
+	private enum RenderState {
 		UNKNOWN,
 		INIT,
 		RENDERING,
@@ -210,7 +210,7 @@ class RendererThread extends Thread {
 	private static class RenderContext {
 		long lastDrawTime;
 		GIFImage image;
-		RendererState state = RendererState.UNKNOWN;
+		RenderState state = RenderState.UNKNOWN;
 		int[] buffer;
 		Bitmap frameBitmap;
 		int frameIndex = 0;
