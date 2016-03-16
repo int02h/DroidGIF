@@ -7,14 +7,17 @@ import android.view.SurfaceHolder;
 import com.dpforge.droidgif.decoder.GIFImage;
 import com.dpforge.droidgif.decoder.GIFImageFrame;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 class RenderThread extends Thread {
+	private final static int MAX_COMMANDS = 32;
+
 	private final SurfaceHolder mHolder;
 	private volatile boolean mRunning;
 
-	private volatile CommandInfo mCommandInfo;
-	private final Object mCommandMonitor = new Object();
+	private final List<CommandInfo> mCommands = new ArrayList<>(4);
 
 	RenderThread(final SurfaceHolder holder) {
 		mHolder = holder;
@@ -29,13 +32,9 @@ class RenderThread extends Thread {
 	}
 
 	void executeCommand(final Command command, final GIFImage image) {
-		synchronized (mCommandMonitor) {
-			mCommandInfo = new CommandInfo(command, image);
-			try {
-				if (mRunning) {
-					mCommandMonitor.wait();
-				}
-			} catch (InterruptedException ignored) {
+		synchronized (mCommands) {
+			if (mCommands.size() + 1 < MAX_COMMANDS) {
+				mCommands.add(new CommandInfo(command, image));
 			}
 		}
 	}
@@ -59,43 +58,43 @@ class RenderThread extends Thread {
 				}
 			}
 
-			processCommand(context);
+			synchronized (mCommands) {
+				for (final CommandInfo cmd : mCommands) {
+					processCommand(cmd, context);
+				}
+				mCommands.clear();
+			}
 		}
 	}
 
-	private void processCommand(final RenderContext context) {
-		synchronized (mCommandMonitor) {
-			if (mCommandInfo != null) {
-				if (canExecuteCommand(mCommandInfo.command, context.state)) {
-					switch (mCommandInfo.command) {
-						case SET_IMAGE:
-							context.image = mCommandInfo.data;
-							context.buffer = new int[context.image.height()*context.image.width()];
-							context.frameBitmap = Bitmap.createBitmap(context.image.width(),
-									context.image.height(), Bitmap.Config.ARGB_8888);
-							context.state = RenderState.INIT;
-							break;
-						case START:
-							context.frameIndex = 0;
-							context.totalDiff = 0;
-							context.state = RenderState.RENDERING;
-							break;
-						case STOP:
-							context.frameIndex = 0;
-							context.totalDiff = 0;
-							context.state = RenderState.STOPPED;
-							break;
-						case RESUME:
-							context.state = RenderState.RENDERING;
-							break;
-						case PAUSE:
-							context.state = RenderState.PAUSED;
-							break;
-					}
+	private static void processCommand(final CommandInfo commandInfo, final RenderContext context) {
+		if (commandInfo != null) {
+			if (canExecuteCommand(commandInfo.command, context.state)) {
+				switch (commandInfo.command) {
+					case SET_IMAGE:
+						context.image = commandInfo.data;
+						context.buffer = new int[context.image.height()*context.image.width()];
+						context.frameBitmap = Bitmap.createBitmap(context.image.width(),
+								context.image.height(), Bitmap.Config.ARGB_8888);
+						context.state = RenderState.INIT;
+						break;
+					case START:
+						context.frameIndex = 0;
+						context.totalDiff = 0;
+						context.state = RenderState.RENDERING;
+						break;
+					case STOP:
+						context.frameIndex = 0;
+						context.totalDiff = 0;
+						context.state = RenderState.STOPPED;
+						break;
+					case RESUME:
+						context.state = RenderState.RENDERING;
+						break;
+					case PAUSE:
+						context.state = RenderState.PAUSED;
+						break;
 				}
-
-				mCommandMonitor.notifyAll();
-				mCommandInfo = null;
 			}
 		}
 	}
