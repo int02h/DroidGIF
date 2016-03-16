@@ -12,12 +12,11 @@ import java.util.Arrays;
 import java.util.List;
 
 class RenderThread extends Thread {
-	private final static int MAX_COMMANDS = 32;
-
 	private final SurfaceHolder mHolder;
 	private volatile boolean mRunning;
 
-	private final List<CommandInfo> mCommands = new ArrayList<>(4);
+	private RenderState mState = RenderState.UNKNOWN;
+	private final List<RenderStateChange> mStateChanges = new ArrayList<>();
 
 	RenderThread(final SurfaceHolder holder) {
 		mHolder = holder;
@@ -32,10 +31,34 @@ class RenderThread extends Thread {
 	}
 
 	void executeCommand(final Command command, final GIFImage image) {
-		synchronized (mCommands) {
-			if (mCommands.size() + 1 < MAX_COMMANDS) {
-				mCommands.add(new CommandInfo(command, image));
-			}
+		if (!canExecuteCommand(command, mState))
+			return;
+
+		RenderStateChange change = new RenderStateChange();
+		switch (command) {
+			case SET_IMAGE:
+				change.setImage(image);
+				change.setFrameIndex(0);
+				change.setState(mState = RenderState.INIT);
+				break;
+			case START:
+				change.setFrameIndex(0);
+				change.setState(mState = RenderState.RENDERING);
+				break;
+			case STOP:
+				change.setFrameIndex(0);
+				change.setState(mState = RenderState.STOPPED);
+				break;
+			case RESUME:
+				change.setState(mState = RenderState.RENDERING);
+				break;
+			case PAUSE:
+				change.setState(mState = RenderState.PAUSED);
+				break;
+		}
+
+		synchronized (mStateChanges) {
+			mStateChanges.add(change);
 		}
 	}
 
@@ -48,6 +71,13 @@ class RenderThread extends Thread {
 		context.totalDiff = 0;
 
 		while (mRunning) {
+			synchronized (mStateChanges) {
+				for (final RenderStateChange change : mStateChanges) {
+					applyChange(change, context);
+				}
+				mStateChanges.clear();
+			}
+
 			Canvas canvas = null;
 			try {
 				canvas = mHolder.lockCanvas();
@@ -57,44 +87,23 @@ class RenderThread extends Thread {
 					mHolder.unlockCanvasAndPost(canvas);
 				}
 			}
-
-			synchronized (mCommands) {
-				for (final CommandInfo cmd : mCommands) {
-					processCommand(cmd, context);
-				}
-				mCommands.clear();
-			}
 		}
 	}
 
-	private static void processCommand(final CommandInfo commandInfo, final RenderContext context) {
-		if (commandInfo != null) {
-			if (canExecuteCommand(commandInfo.command, context.state)) {
-				switch (commandInfo.command) {
-					case SET_IMAGE:
-						context.image = commandInfo.data;
-						context.buffer = new int[context.image.height()*context.image.width()];
-						context.frameBitmap = Bitmap.createBitmap(context.image.width(),
-								context.image.height(), Bitmap.Config.ARGB_8888);
-						context.state = RenderState.INIT;
-						break;
-					case START:
-						context.frameIndex = 0;
-						context.totalDiff = 0;
-						context.state = RenderState.RENDERING;
-						break;
-					case STOP:
-						context.frameIndex = 0;
-						context.totalDiff = 0;
-						context.state = RenderState.STOPPED;
-						break;
-					case RESUME:
-						context.state = RenderState.RENDERING;
-						break;
-					case PAUSE:
-						context.state = RenderState.PAUSED;
-						break;
-				}
+	private static void applyChange(final RenderStateChange change, final RenderContext context) {
+		if (change.hasModifications()) {
+			if (change.isImageModified()) {
+				context.image = change.getImage();
+				context.buffer = new int[context.image.height()*context.image.width()];
+				context.frameBitmap = Bitmap.createBitmap(context.image.width(),
+						context.image.height(), Bitmap.Config.ARGB_8888);
+			}
+			if (change.isFrameIndexModified()) {
+				context.frameIndex = change.getFrameIndex();
+				context.totalDiff = 0;
+			}
+			if (change.isStateModified()) {
+				context.state = change.getState();
 			}
 		}
 	}
@@ -196,16 +205,6 @@ class RenderThread extends Thread {
 		STOPPED
 	}
 
-	private static class CommandInfo {
-		final Command command;
-		final GIFImage data;
-
-		private CommandInfo(final Command command, final GIFImage data) {
-			this.command = command;
-			this.data = data;
-		}
-	}
-
 	private static class RenderContext {
 		long lastDrawTime;
 		GIFImage image;
@@ -214,6 +213,58 @@ class RenderThread extends Thread {
 		Bitmap frameBitmap;
 		int frameIndex = 0;
 		long totalDiff = 0;
+	}
+
+	private static class RenderStateChange {
+		private GIFImage mImage;
+		private RenderState mState = RenderState.UNKNOWN;
+		private int mFrameIndex = 0;
+		private boolean mImageModified = false;
+		private boolean mStateModified = false;
+		private boolean mFrameIndexModified = false;
+
+		RenderState getState() {
+			return mState;
+		}
+
+		void setState(final RenderState state) {
+			mState = state;
+			mStateModified = true;
+		}
+
+		boolean isStateModified() {
+			return mStateModified;
+		}
+
+		int getFrameIndex() {
+			return mFrameIndex;
+		}
+
+		void setFrameIndex(final int frameIndex) {
+			mFrameIndex = frameIndex;
+			mFrameIndexModified = true;
+		}
+
+		boolean isFrameIndexModified() {
+			return mFrameIndexModified;
+		}
+
+		GIFImage getImage() {
+			 return mImage;
+		}
+
+		void setImage(final GIFImage image) {
+			mImage = image;
+			mImageModified = true;
+		}
+
+		boolean isImageModified() {
+			return mImageModified;
+		}
+
+		boolean hasModifications() {
+			return isImageModified() || isFrameIndexModified() || isStateModified();
+		}
 	}
 
 	public enum Command {
