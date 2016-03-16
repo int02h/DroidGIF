@@ -26,8 +26,8 @@ public class MainActivity extends AppCompatActivity {
 		mGifIndex = (mGifIndex + 1)%mGifList.length;
 	}
 
-	public void onStartClick(View view) {
-		mGifView.start();
+	public void onPlayClick(View view) {
+		mGifView.play();
 	}
 
 	public void onStopClick(View view) {
@@ -36,9 +36,5 @@ public class MainActivity extends AppCompatActivity {
 
 	public void onPauseClick(View view) {
 		mGifView.pause();
-	}
-
-	public void onResumeClick(View view) {
-		mGifView.resume();
 	}
 }

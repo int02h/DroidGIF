@@ -80,8 +80,8 @@ public class GIFImageView extends SurfaceView {
 		}
 	}
 
-	public void start() {
-		mRenderThread.executeCommand(RenderThread.Command.START);
+	public void play() {
+		mRenderThread.executeCommand(RenderThread.Command.PLAY);
 	}
 
 	public void stop() {
@@ -90,10 +90,6 @@ public class GIFImageView extends SurfaceView {
 
 	public void pause() {
 		mRenderThread.executeCommand(RenderThread.Command.PAUSE);
-	}
-
-	public void resume() {
-		mRenderThread.executeCommand(RenderThread.Command.RESUME);
 	}
 
 	private void init() {

@@ -41,16 +41,15 @@ class RenderThread extends Thread {
 				change.setFrameIndex(0);
 				change.setState(mState = RenderState.INIT);
 				break;
-			case START:
-				change.setFrameIndex(0);
+			case PLAY:
+				if (mState != RenderState.PAUSED) {
+					change.setFrameIndex(0);
+				}
 				change.setState(mState = RenderState.RENDERING);
 				break;
 			case STOP:
 				change.setFrameIndex(0);
 				change.setState(mState = RenderState.STOPPED);
-				break;
-			case RESUME:
-				change.setState(mState = RenderState.RENDERING);
 				break;
 			case PAUSE:
 				change.setState(mState = RenderState.PAUSED);
@@ -112,12 +111,10 @@ class RenderThread extends Thread {
 		switch (command) {
 			case SET_IMAGE:
 				return true;
-			case START:
-				return (state == RenderState.INIT || state == RenderState.STOPPED);
+			case PLAY:
+				return (state == RenderState.INIT || state == RenderState.STOPPED || state == RenderState.PAUSED);
 			case STOP:
 				return (state == RenderState.PAUSED || state == RenderState.RENDERING);
-			case RESUME:
-				return (state == RenderState.PAUSED);
 			case PAUSE:
 				return (state == RenderState.RENDERING);
 			default:
@@ -269,9 +266,8 @@ class RenderThread extends Thread {
 
 	public enum Command {
 		SET_IMAGE,
-		START,
+		PLAY,
 		STOP,
-		RESUME,
 		PAUSE
 	}
 }
