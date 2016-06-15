@@ -5,9 +5,10 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.dpforge.droidgif.GIFSurfaceView;
+import com.dpforge.droidgif.GIFView;
 
 public class MainActivity extends AppCompatActivity {
-	private GIFSurfaceView mGifView;
+	private GIFView mGifView;
 	private int mGifIndex = 0;
 	private int[] mGifList = new int[] {
 			R.raw.big_with_comment, R.raw.rotating_earth, R.raw.earthquake
@@ -18,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		mGifView = (GIFSurfaceView) findViewById(R.id.gif);
+		mGifView = (GIFView) findViewById(R.id.gif);
 	}
 
 	public void onNextGifClick(View view) {

@@ -2,7 +2,6 @@ package com.dpforge.droidgif;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.view.SurfaceHolder;
 
 import com.dpforge.droidgif.decoder.GIFImage;
 import com.dpforge.droidgif.decoder.GIFImageFrame;
@@ -12,13 +11,13 @@ import java.util.Arrays;
 import java.util.List;
 
 class RenderThread extends Thread {
-	private final SurfaceHolder mHolder;
+	private final CanvasHolder mHolder;
 	private volatile boolean mRunning;
 
 	private RenderState mState = RenderState.UNKNOWN;
 	private final List<RenderStateChange> mStateChanges = new ArrayList<>();
 
-	RenderThread(final SurfaceHolder holder) {
+	RenderThread(final CanvasHolder holder) {
 		mHolder = holder;
 	}
 
@@ -269,5 +268,10 @@ class RenderThread extends Thread {
 		PLAY,
 		STOP,
 		PAUSE
+	}
+
+	public interface CanvasHolder {
+		Canvas lockCanvas();
+		void unlockCanvasAndPost(Canvas canvas);
 	}
 }

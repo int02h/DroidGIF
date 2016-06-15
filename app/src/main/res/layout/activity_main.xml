@@ -22,7 +22,7 @@
         android:text="Next GIF"
         android:onClick="onNextGifClick"/>
 
-    <com.dpforge.droidgif.GIFSurfaceView
+    <com.dpforge.droidgif.GIFTextureView
         android:id="@+id/gif"
         android:layout_gravity="center_horizontal"
         android:layout_width="wrap_content"

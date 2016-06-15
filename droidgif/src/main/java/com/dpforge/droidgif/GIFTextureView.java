@@ -2,10 +2,10 @@ package com.dpforge.droidgif;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.SurfaceTexture;
 import android.support.annotation.RawRes;
 import android.util.AttributeSet;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
+import android.view.TextureView;
 
 import com.dpforge.droidgif.decoder.DecoderException;
 import com.dpforge.droidgif.decoder.GIFDecoder;
@@ -15,17 +15,22 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class GIFSurfaceView extends SurfaceView implements GIFView {
+public class GIFTextureView extends TextureView implements GIFView {
 	private RenderThread mRenderThread;
 	private GIFImage mImage;
 
-	public GIFSurfaceView(final Context context) {
+	public GIFTextureView(Context context) {
 		super(context);
 		init();
 	}
 
-	public GIFSurfaceView(final Context context, final AttributeSet attrs) {
+	public GIFTextureView(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		init();
+	}
+
+	public GIFTextureView(Context context, AttributeSet attrs, int defStyleAttr) {
+		super(context, attrs, defStyleAttr);
 		init();
 	}
 
@@ -77,7 +82,7 @@ public class GIFSurfaceView extends SurfaceView implements GIFView {
 			mRenderThread.executeCommand(RenderThread.Command.SET_IMAGE, mImage);
 			requestLayout();
 			invalidate();
-		} catch (IOException | DecoderException  e) {
+		} catch (IOException | DecoderException e) {
 			e.printStackTrace();
 		}
 	}
@@ -98,24 +103,25 @@ public class GIFSurfaceView extends SurfaceView implements GIFView {
 	}
 
 	private void init() {
-		getHolder().addCallback(new SurfaceHolderCallback());
-		mRenderThread = new RenderThread(new CanvasHolder(getHolder()));
+		setSurfaceTextureListener(new SurfaceListener());
+		mRenderThread = new RenderThread(new CanvasHolder());
 	}
 
-	private class SurfaceHolderCallback implements SurfaceHolder.Callback {
+	private class SurfaceListener implements TextureView.SurfaceTextureListener {
+
 		@Override
-		public void surfaceCreated(final SurfaceHolder holder) {
+		public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
 			mRenderThread.setRunning(true);
 			mRenderThread.start();
 		}
 
 		@Override
-		public void surfaceChanged(final SurfaceHolder holder, final int format, final int width, final int height) {
+		public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
 
 		}
 
 		@Override
-		public void surfaceDestroyed(final SurfaceHolder holder) {
+		public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
 			boolean retry = true;
 			mRenderThread.setRunning(false);
 			while (retry) {
@@ -126,24 +132,24 @@ public class GIFSurfaceView extends SurfaceView implements GIFView {
 
 				}
 			}
+			return true;
+		}
+
+		@Override
+		public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+
 		}
 	}
 
 	private class CanvasHolder implements RenderThread.CanvasHolder {
-		private final SurfaceHolder mHolder;
-
-		private CanvasHolder(final SurfaceHolder holder) {
-			mHolder = holder;
-		}
-
 		@Override
 		public Canvas lockCanvas() {
-			return mHolder.lockCanvas();
+			return GIFTextureView.this.lockCanvas();
 		}
 
 		@Override
 		public void unlockCanvasAndPost(final Canvas canvas) {
-			mHolder.unlockCanvasAndPost(canvas);
+			GIFTextureView.this.unlockCanvasAndPost(canvas);
 		}
 	}
 }
