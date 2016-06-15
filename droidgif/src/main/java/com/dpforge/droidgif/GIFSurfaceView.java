@@ -7,13 +7,7 @@ import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import com.dpforge.droidgif.decoder.DecoderException;
-import com.dpforge.droidgif.decoder.GIFDecoder;
 import com.dpforge.droidgif.decoder.GIFImage;
-
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 public class GIFSurfaceView extends SurfaceView implements GIFView {
 	private RenderThread mRenderThread;
@@ -37,18 +31,15 @@ public class GIFSurfaceView extends SurfaceView implements GIFView {
 
 	@Override
 	public void setImageResource(@RawRes int resId) {
-		final InputStream is = getContext().getResources().openRawResource(resId);
-		final BufferedInputStream bis = new BufferedInputStream(is);
-		try {
-			final GIFDecoder decoder = new GIFDecoder(bis);
-			mImage = decoder.decode();
-			bis.close();
-			mRenderThread.executeCommand(RenderThread.Command.SET_IMAGE, mImage);
-			requestLayout();
-			invalidate();
-		} catch (IOException | DecoderException  e) {
-			e.printStackTrace();
-		}
+		GIFLoader.getInstance().loadRawResource(getContext(), resId, new GIFLoader.OnLoadListener() {
+			@Override
+			public void onLoad(final GIFImage image, final Exception ex) {
+				mImage = image;
+				mRenderThread.executeCommand(RenderThread.Command.SET_IMAGE, image);
+				requestLayout();
+				invalidate();
+			}
+		});
 	}
 
 	@Override
