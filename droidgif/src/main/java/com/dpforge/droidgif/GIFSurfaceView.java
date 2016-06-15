@@ -31,39 +31,8 @@ public class GIFSurfaceView extends SurfaceView implements GIFView {
 
 	@Override
 	protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
-		int desiredWidth, desiredHeight;
-		if (mImage != null) {
-			desiredWidth = mImage.width();
-			desiredHeight = mImage.height();
-		} else {
-			desiredWidth = desiredHeight = 0;
-		}
-
-		int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-		int widthSize = MeasureSpec.getSize(widthMeasureSpec);
-		int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-		int heightSize = MeasureSpec.getSize(heightMeasureSpec);
-
-		int width;
-		int height;
-
-		if (widthMode == MeasureSpec.EXACTLY) {
-			width = widthSize;
-		} else if (widthMode == MeasureSpec.AT_MOST) {
-			width = Math.min(desiredWidth, widthSize);
-		} else {
-			width = desiredWidth;
-		}
-
-		if (heightMode == MeasureSpec.EXACTLY) {
-			height = heightSize;
-		} else if (heightMode == MeasureSpec.AT_MOST) {
-			height = Math.min(desiredHeight, heightSize);
-		} else {
-			height = desiredHeight;
-		}
-
-		setMeasuredDimension(width, height);
+		ViewMeasurer.MeasureResult result = ViewMeasurer.measure(mImage, widthMeasureSpec,  heightMeasureSpec);
+		setMeasuredDimension(result.width, result.height);
 	}
 
 	@Override
