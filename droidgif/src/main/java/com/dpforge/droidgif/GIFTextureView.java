@@ -9,9 +9,21 @@ import android.view.TextureView;
 
 import com.dpforge.droidgif.decoder.GIFImage;
 
+import java.net.URL;
+
 public class GIFTextureView extends TextureView implements GIFView {
 	private RenderThread mRenderThread;
 	private GIFImage mImage;
+
+	private final GIFLoader.OnLoadListener mLoadListener = new GIFLoader.OnLoadListener() {
+		@Override
+		public void onLoad(final GIFImage image, final Exception ex) {
+			mImage = image;
+			mRenderThread.executeCommand(RenderThread.Command.SET_IMAGE, image);
+			requestLayout();
+			invalidate();
+		}
+	};
 
 	public GIFTextureView(Context context) {
 		super(context);
@@ -36,15 +48,12 @@ public class GIFTextureView extends TextureView implements GIFView {
 
 	@Override
 	public void setRawResource(@RawRes int resId) {
-		GIFLoader.getInstance().loadRawResource(getContext(), resId, new GIFLoader.OnLoadListener() {
-			@Override
-			public void onLoad(final GIFImage image, final Exception ex) {
-				mImage = image;
-				mRenderThread.executeCommand(RenderThread.Command.SET_IMAGE, image);
-				requestLayout();
-				invalidate();
-			}
-		});
+		GIFLoader.getInstance().loadRawResource(getContext(), resId, mLoadListener);
+	}
+
+	@Override
+	public void setImageURL(final URL url) {
+		GIFLoader.getInstance().loadURL(url, mLoadListener);
 	}
 
 	@Override
