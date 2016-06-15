@@ -14,16 +14,16 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class GIFImageView extends SurfaceView {
+public class GIFSurfaceView extends SurfaceView {
 	private RenderThread mRenderThread;
 	private GIFImage mImage;
 
-	public GIFImageView(final Context context) {
+	public GIFSurfaceView(final Context context) {
 		super(context);
 		init();
 	}
 
-	public GIFImageView(final Context context, final AttributeSet attrs) {
+	public GIFSurfaceView(final Context context, final AttributeSet attrs) {
 		super(context, attrs);
 		init();
 	}
