@@ -30,7 +30,7 @@ public class GIFSurfaceView extends SurfaceView implements GIFView {
 	}
 
 	@Override
-	public void setImageResource(@RawRes int resId) {
+	public void setRawResource(@RawRes int resId) {
 		GIFLoader.getInstance().loadRawResource(getContext(), resId, new GIFLoader.OnLoadListener() {
 			@Override
 			public void onLoad(final GIFImage image, final Exception ex) {

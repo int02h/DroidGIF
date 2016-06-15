@@ -4,7 +4,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
-import com.dpforge.droidgif.GIFSurfaceView;
 import com.dpforge.droidgif.GIFView;
 
 public class MainActivity extends AppCompatActivity {
@@ -23,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	public void onNextGifClick(View view) {
-		mGifView.setImageResource(mGifList[mGifIndex]);
+		mGifView.setRawResource(mGifList[mGifIndex]);
 		mGifIndex = (mGifIndex + 1)%mGifList.length;
 	}
 

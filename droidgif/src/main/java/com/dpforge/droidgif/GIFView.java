@@ -3,7 +3,7 @@ package com.dpforge.droidgif;
 import android.support.annotation.RawRes;
 
 public interface GIFView {
-	void setImageResource(@RawRes int resId);
+	void setRawResource(@RawRes int resId);
 
 	void play();
 
