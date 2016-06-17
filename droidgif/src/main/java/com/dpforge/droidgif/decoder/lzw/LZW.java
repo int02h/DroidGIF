@@ -6,10 +6,11 @@ import java.io.InputStream;
 public class LZW {
 	private final static int MAX_SIZE = 4096;
 
-	private LZW() {
-	}
+	private final short[] prefix = new short[MAX_SIZE];
+	private final byte[] suffix = new byte[MAX_SIZE];
+	private final byte[] stack = new byte[MAX_SIZE + 1];
 
-	public static int decompress(final InputStream inputStream, final int minCodeSize, final byte[] indexStream) throws IOException {
+	public int decompress(final InputStream inputStream, final int minCodeSize, final byte[] indexStream) throws IOException {
 		int codeSize = minCodeSize;
 		final CodeStream codeStream = new CodeStream(inputStream, codeSize);
 
@@ -21,15 +22,11 @@ public class LZW {
 		int threshold = (1 << codeSize);
 		int resultIndex = 0;
 
-		short[] prefix = new short[MAX_SIZE];
-		byte[] suffix = new byte[MAX_SIZE];
-
 		for (code = 0; code < clearCode; ++code) {
 			suffix[code] = (byte) code;
 			prefix[code] = -1;
 		}
 
-		byte[] stack = new byte[MAX_SIZE + 1];
 		int stackTop = 0;
 
 		while (true) {

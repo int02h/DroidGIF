@@ -55,6 +55,7 @@ public class FrameDecoder {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
+				final LZW lzw = new LZW();
 				while (mDecoding) {
 					try {
 						if (mStopWhenEmpty && mFrameToDecode.isEmpty()) {
@@ -65,7 +66,7 @@ public class FrameDecoder {
 						final GIFImageFrame frame = mFrameToDecode.take();
 						if (frame != null) {
 							final byte[] colorIndices = new byte[frame.width()*frame.height()];
-							LZW.decompress(new ByteArrayInputStream(frame.compressedData()),
+							lzw.decompress(new ByteArrayInputStream(frame.compressedData()),
 									frame.minCodeSize() + 1, colorIndices);
 							frame.setDecoded(colorIndices);
 							synchronized (mDecodedFrames) {
