@@ -10,7 +10,7 @@ public class MainActivity extends AppCompatActivity {
 	private GIFView mGifView;
 	private int mGifIndex = 0;
 	private int[] mGifList = new int[] {
-			R.raw.big_with_comment, R.raw.rotating_earth, R.raw.earthquake
+			R.raw.big_with_comment, R.raw.rotating_earth, R.raw.earthquake, R.raw.kitchen
 	};
 
 	@Override
