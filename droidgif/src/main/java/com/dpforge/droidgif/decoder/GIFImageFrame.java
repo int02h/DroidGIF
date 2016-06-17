@@ -1,8 +1,6 @@
 package com.dpforge.droidgif.decoder;
 
 public class GIFImageFrame {
-	private final GIFImage mImage;
-
 	private final int mLeft;
 	private final int mTop;
 	private final int mWidth;
@@ -11,18 +9,19 @@ public class GIFImageFrame {
 	private final DisposalMethod mDisposalMethod;
 
 	private final ColorTable mColorTable;
-	private final byte[] mColorIndices;
+	private final byte[] mCompressedData;
+	private final int mMinCodeSize;
 	private final int mTransparentColorIndex;
 
 	GIFImageFrame(final GIFImage gifImage, final TableBasedImage imageData, final GraphicControlExtension imageExtension) {
-		mImage = gifImage;
 		mLeft = imageData.left();
 		mTop = imageData.top();
 		mWidth = imageData.width();
 		mHeight = imageData.height();
 
 		mColorTable = imageData.hasLocalColorTable() ? imageData.localColorTable() : gifImage.globalColorTable();
-		mColorIndices = imageData.colorIndices();
+		mCompressedData = imageData.compressedData();
+		mMinCodeSize = imageData.minCodeSize();
 
 		if (imageExtension != null) {
 			mDelay = imageExtension.delay();
@@ -57,17 +56,23 @@ public class GIFImageFrame {
 		return mDelay;
 	}
 
+	public int transparentColorIndex() {
+		return mTransparentColorIndex;
+	}
+
+	public ColorTable colorTable() {
+		return mColorTable;
+	}
+
 	public DisposalMethod disposalMethod() {
 		return mDisposalMethod;
 	}
 
-	public boolean isTransparentPixel(int x, int y) {
-		int colorIndex = (mColorIndices[y*mWidth + x] & 0xFF);
-		return colorIndex == mTransparentColorIndex;
+	public byte[] compressedData() {
+		return mCompressedData;
 	}
 
-	public int getColor(int x, int y) {
-		int colorIndex = mColorIndices[y*mWidth + x] & 0xFF;
-		return mColorTable.getColor(colorIndex);
+	public int minCodeSize() {
+		return mMinCodeSize;
 	}
 }

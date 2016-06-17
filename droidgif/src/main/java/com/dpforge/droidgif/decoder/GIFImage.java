@@ -5,8 +5,9 @@ import java.util.List;
 
 public class GIFImage {
 	private ColorTable mGlobalColorTable;
-	private List<GIFImageFrame> mFrames = new ArrayList<>(1);
+	private final FrameDecoder mFrameDecoder = new FrameDecoder();
 
+	private int mFramesCount = 0;
 	private int mWidth;
 	private int mHeight;
 	private int mBackgroundColorIndex;
@@ -23,21 +24,21 @@ public class GIFImage {
 	}
 
 	public boolean isEmpty() {
-		return mFrames.isEmpty();
+		return mFramesCount == 0;
 	}
 
 	public int framesCount() {
-		return mFrames.size();
+		return mFramesCount;
+	}
+
+	public FrameDecoder frameDecoder() {
+		return mFrameDecoder;
 	}
 
 	public int backgroundColor() {
 		return (mGlobalColorTable != null
 				? mGlobalColorTable.getColor(mBackgroundColorIndex)
 				: 0x000000);
-	}
-
-	public GIFImageFrame getFrame(final int index) {
-		return mFrames.get(index);
 	}
 
 	ColorTable globalColorTable() {
@@ -59,7 +60,12 @@ public class GIFImage {
 
 	GIFImageFrame addFrame(final TableBasedImage image, final GraphicControlExtension imageExtension) {
 		GIFImageFrame frame = new GIFImageFrame(this, image, imageExtension);
-		mFrames.add(frame);
+		mFramesCount++;
+		mFrameDecoder.addFrameForDecoding(frame);
 		return frame;
+	}
+
+	void finishDecoding() {
+		mFrameDecoder.stop();
 	}
 }

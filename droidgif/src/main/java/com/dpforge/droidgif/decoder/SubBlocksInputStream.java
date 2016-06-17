@@ -1,6 +1,9 @@
 package com.dpforge.droidgif.decoder;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 class SubBlocksInputStream {
 	private final BinaryStream mStream;
@@ -26,5 +29,21 @@ class SubBlocksInputStream {
 
 		mBytesLeft--;
 		return mStream.readByte();
+	}
+
+	byte[] readAll() throws IOException {
+		final List<byte[]> parts = new ArrayList<>(16);
+		int size, totalSize = 0;
+		while ((size = mStream.readByte()) > 0) {
+			parts.add(mStream.readBytes(size));
+			totalSize += size;
+		}
+		final byte[] result = new byte[totalSize];
+		int index = 0;
+		for (byte[] part : parts) {
+			System.arraycopy(part, 0, result, index, part.length);
+			index += part.length;
+		}
+		return result;
 	}
 }

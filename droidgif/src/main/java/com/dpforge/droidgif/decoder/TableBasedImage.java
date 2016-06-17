@@ -1,9 +1,6 @@
 package com.dpforge.droidgif.decoder;
 
-import com.dpforge.droidgif.decoder.lzw.LZW;
-
 import java.io.IOException;
-import java.io.InputStream;
 
 class TableBasedImage extends DecoderReader {
 	private int mLeft;
@@ -15,12 +12,8 @@ class TableBasedImage extends DecoderReader {
 	private boolean mIsLocalTableSorted;
 
 	private ColorTable mLocalColorTable;
-	private final ColorTable mGlobalColorTable;
-	private byte[] mColorIndices;
-
-	TableBasedImage(final ColorTable globalColorTable) {
-		mGlobalColorTable = globalColorTable;
-	}
+	private byte[] mCompressedData;
+	private int mMinCodeSize;
 
 	public int left() {
 		return mLeft;
@@ -50,8 +43,12 @@ class TableBasedImage extends DecoderReader {
 		return mLocalColorTable;
 	}
 
-	public byte[] colorIndices() {
-		return mColorIndices;
+	public byte[] compressedData() {
+		return mCompressedData;
+	}
+
+	public int minCodeSize() {
+		return mMinCodeSize;
 	}
 
 	@Override
@@ -73,36 +70,7 @@ class TableBasedImage extends DecoderReader {
 			mLocalColorTable.read(stream);
 		}
 
-		readImageData(stream);
-	}
-
-	private void readImageData(final BinaryStream stream) throws IOException, DecoderException {
-		final int minCodeSize = stream.readByte();
-		final SubBlocksInputStream subStream = new SubBlocksInputStream(stream);
-		mColorIndices = new byte[mWidth*mHeight];
-
-		final int actualPixelsCount = LZW.decompress(new InputStream() {
-			@Override
-			public int read() throws IOException {
-				return subStream.read();
-			}
-		}, minCodeSize + 1, mColorIndices);
-
-		if (subStream.read() != -1) { // read last zero byte
-			throw new DecoderException(
-					DecoderException.ERROR_WRONG_IMAGE_DATA,
-					"Redundant bytes in image data"
-			);
-		}
-
-		if (actualPixelsCount != mWidth*mHeight)
-			throw new DecoderException(
-					DecoderException.ERROR_WRONG_IMAGE_DATA,
-					"Wrong size of color indices list"
-			);
-	}
-
-	private ColorTable colorTable() {
-		return mHasLocalColorTable ? mLocalColorTable : mGlobalColorTable;
+		mMinCodeSize = stream.readByte();
+		mCompressedData = new SubBlocksInputStream(stream).readAll();
 	}
 }

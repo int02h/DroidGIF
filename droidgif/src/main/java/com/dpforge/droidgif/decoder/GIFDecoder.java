@@ -27,6 +27,7 @@ public class GIFDecoder {
 		readHeader();
 		readLogicalScreen(image);
 		readData(image);
+		image.finishDecoding();
 		return image;
 	}
 
@@ -77,7 +78,7 @@ public class GIFDecoder {
 					}
 					break;
 				case TABLE_BASED_IMAGE_LABEL:
-					final TableBasedImage imageDecoder = new TableBasedImage(image.globalColorTable());
+					final TableBasedImage imageDecoder = new TableBasedImage();
 					imageDecoder.read(mStream);
 					image.addFrame(imageDecoder, graphicControlDecoder);
 					graphicControlDecoder = null;
