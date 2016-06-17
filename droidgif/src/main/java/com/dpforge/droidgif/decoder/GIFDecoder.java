@@ -1,5 +1,7 @@
 package com.dpforge.droidgif.decoder;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -23,11 +25,14 @@ public class GIFDecoder {
 	}
 
 	public GIFImage decode() throws IOException, DecoderException {
+		long start = System.currentTimeMillis();
 		final GIFImage image = new GIFImage();
 		readHeader();
 		readLogicalScreen(image);
 		readData(image);
 		image.finishDecoding();
+		long elapsed = System.currentTimeMillis() - start;
+		Log.i("TIMING", String.format("decode took %d ms", elapsed));
 		return image;
 	}
 

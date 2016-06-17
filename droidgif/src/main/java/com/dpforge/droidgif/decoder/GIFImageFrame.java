@@ -9,9 +9,11 @@ public class GIFImageFrame {
 	private final DisposalMethod mDisposalMethod;
 
 	private final ColorTable mColorTable;
-	private final byte[] mCompressedData;
 	private final int mMinCodeSize;
 	private final int mTransparentColorIndex;
+
+	private byte[] mCompressedData;
+	private byte[] mColorIndices;
 
 	GIFImageFrame(final GIFImage gifImage, final TableBasedImage imageData, final GraphicControlExtension imageExtension) {
 		mLeft = imageData.left();
@@ -68,11 +70,26 @@ public class GIFImageFrame {
 		return mDisposalMethod;
 	}
 
-	public byte[] compressedData() {
+	public int minCodeSize() {
+		return mMinCodeSize;
+	}
+
+	public boolean isTransparentPixel(int x, int y) {
+		int colorIndex = (mColorIndices[y*mWidth + x] & 0xFF);
+		return colorIndex == mTransparentColorIndex;
+	}
+
+	public int getColor(int x, int y) {
+		int colorIndex = mColorIndices[y*mWidth + x] & 0xFF;
+		return mColorTable.getColor(colorIndex);
+	}
+
+	byte[] compressedData() {
 		return mCompressedData;
 	}
 
-	public int minCodeSize() {
-		return mMinCodeSize;
+	void setDecoded(final byte[] colorIndices) {
+		mColorIndices = colorIndices;
+		mCompressedData = null;
 	}
 }

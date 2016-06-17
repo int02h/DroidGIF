@@ -3,8 +3,8 @@ package com.dpforge.droidgif;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 
-import com.dpforge.droidgif.decoder.GIFDecodedFrame;
 import com.dpforge.droidgif.decoder.GIFImage;
+import com.dpforge.droidgif.decoder.GIFImageFrame;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -126,7 +126,7 @@ class RenderThread extends Thread {
 			switch (context.state) {
 				case RENDERING:
 					if (canvas != null) {
-						final GIFDecodedFrame frame = context.image.frameDecoder().getFrame(context.frameIndex);
+						final GIFImageFrame frame = context.image.frameDecoder().getFrame(context.frameIndex);
 						prepareBuffer(frame, context);
 						drawBuffer(canvas, context);
 						disposeBuffer(frame, context);
@@ -142,7 +142,7 @@ class RenderThread extends Thread {
 					break;
 				case PAUSED:
 					if (canvas != null) {
-						final GIFDecodedFrame frame = context.image.frameDecoder().getFrame(context.frameIndex);
+						final GIFImageFrame frame = context.image.frameDecoder().getFrame(context.frameIndex);
 						prepareBuffer(frame, context);
 						drawBuffer(canvas, context);
 						disposeBuffer(frame, context);
@@ -159,7 +159,7 @@ class RenderThread extends Thread {
 		}
 	}
 
-	private static void prepareBuffer(final GIFDecodedFrame frame, final RenderContext context) {
+	private static void prepareBuffer(final GIFImageFrame frame, final RenderContext context) {
 		for (int y = 0; y < frame.height(); ++y) {
 			for (int x = 0; x < frame.width(); ++x) {
 				int left = frame.left() + x;
@@ -176,7 +176,7 @@ class RenderThread extends Thread {
 		canvas.drawBitmap(context.frameBitmap, 0, 0, null);
 	}
 
-	private static void disposeBuffer(final GIFDecodedFrame frame, final RenderContext context) {
+	private static void disposeBuffer(final GIFImageFrame frame, final RenderContext context) {
 		switch (frame.disposalMethod()) {
 			case NOT_SPECIFIED:
 			case NO_DISPOSE:

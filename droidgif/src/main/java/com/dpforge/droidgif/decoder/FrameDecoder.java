@@ -9,26 +9,26 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
 public class FrameDecoder {
-	private final List<GIFDecodedFrame> mFrames;
+	private final List<GIFImageFrame> mDecodedFrames;
 	private final BlockingQueue<GIFImageFrame> mFrameToDecode;
 	private boolean mDecoding;
 	private boolean mStopWhenEmpty;
 
 	FrameDecoder() {
-		mFrames = new ArrayList<>(32);
+		mDecodedFrames = new ArrayList<>(32);
 		mFrameToDecode = new LinkedBlockingDeque<>();
 	}
 
-	public GIFDecodedFrame getFrame(int index) {
-		synchronized (mFrames) {
-			while (index >= mFrames.size()) {
+	public GIFImageFrame getFrame(int index) {
+		synchronized (mDecodedFrames) {
+			while (index >= mDecodedFrames.size()) {
 				try {
-					mFrames.wait();
+					mDecodedFrames.wait();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
-			return mFrames.get(index);
+			return mDecodedFrames.get(index);
 		}
 	}
 
@@ -67,9 +67,10 @@ public class FrameDecoder {
 							final byte[] colorIndices = new byte[frame.width()*frame.height()];
 							LZW.decompress(new ByteArrayInputStream(frame.compressedData()),
 									frame.minCodeSize() + 1, colorIndices);
-							synchronized (mFrames) {
-								mFrames.add(new GIFDecodedFrame(frame, colorIndices));
-								mFrames.notifyAll();
+							frame.setDecoded(colorIndices);
+							synchronized (mDecodedFrames) {
+								mDecodedFrames.add(frame);
+								mDecodedFrames.notifyAll();
 							}
 						} else {
 							mDecoding = false;
