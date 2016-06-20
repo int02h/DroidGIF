@@ -58,11 +58,9 @@ public class GIFImage {
 		mBackgroundColorIndex = backgroundColorIndex;
 	}
 
-	GIFImageFrame addFrame(final TableBasedImage image, final GraphicControlExtension imageExtension) {
-		GIFImageFrame frame = new GIFImageFrame(this, image, imageExtension);
+	void addFrame(final GIFImageFrame frame) {
 		mFramesCount++;
 		mFrameDecoder.addFrameForDecoding(frame);
-		return frame;
 	}
 
 	void finishDecoding() {

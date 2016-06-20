@@ -1,41 +1,21 @@
 package com.dpforge.droidgif.decoder;
 
 public class GIFImageFrame {
-	private final int mLeft;
-	private final int mTop;
-	private final int mWidth;
-	private final int mHeight;
-	private final int mDelay;
-	private final DisposalMethod mDisposalMethod;
+	private int mLeft = 0;
+	private int mTop = 0;
+	private int mWidth = 0;
+	private int mHeight = 0;
+	private int mDelay = 0;
+	private DisposalMethod mDisposalMethod = DisposalMethod.NOT_SPECIFIED;
 
-	private final ColorTable mColorTable;
-	private final int mMinCodeSize;
-	private final int mTransparentColorIndex;
+	private ColorTable mColorTable;
+	private int mMinCodeSize;
+	private int mTransparentColorIndex = -1;
 
 	private byte[] mCompressedData;
 	private byte[] mColorIndices;
 
-	GIFImageFrame(final GIFImage gifImage, final TableBasedImage imageData, final GraphicControlExtension imageExtension) {
-		mLeft = imageData.left();
-		mTop = imageData.top();
-		mWidth = imageData.width();
-		mHeight = imageData.height();
-
-		mColorTable = imageData.hasLocalColorTable() ? imageData.localColorTable() : gifImage.globalColorTable();
-		mCompressedData = imageData.compressedData();
-		mMinCodeSize = imageData.minCodeSize();
-
-		if (imageExtension != null) {
-			mDelay = imageExtension.delay();
-			mDisposalMethod = imageExtension.disposalMethod();
-			mTransparentColorIndex = (imageExtension.hasTransparentColor()
-					? imageExtension.transparencyColorIndex()
-					: -1);
-		} else {
-			mDelay = 0;
-			mDisposalMethod = DisposalMethod.NOT_SPECIFIED;
-			mTransparentColorIndex = -1;
-		}
+	GIFImageFrame() {
 	}
 
 	public int left() {
@@ -58,10 +38,12 @@ public class GIFImageFrame {
 		return mDelay;
 	}
 
+	@SuppressWarnings("unused")
 	public int transparentColorIndex() {
 		return mTransparentColorIndex;
 	}
 
+	@SuppressWarnings("unused")
 	public ColorTable colorTable() {
 		return mColorTable;
 	}
@@ -91,5 +73,36 @@ public class GIFImageFrame {
 	void setDecoded(final byte[] colorIndices) {
 		mColorIndices = colorIndices;
 		mCompressedData = null;
+	}
+
+	void setDisposalMethod(final DisposalMethod disposalMethod) {
+		mDisposalMethod = disposalMethod;
+	}
+
+	void setTransparentColorIndex(final int index) {
+		mTransparentColorIndex = index;
+	}
+
+	void setDelay(final int delay) {
+		mDelay = delay;
+	}
+
+	void setPosition(final int left, final int top) {
+		mLeft = left;
+		mTop = top;
+	}
+
+	void setSize(final int width, final int height) {
+		mWidth = width;
+		mHeight = height;
+	}
+
+	void setColorTable(final ColorTable colorTable) {
+		mColorTable = colorTable;
+	}
+
+	void setCompressedData(final int minCodeSize, final byte[] data) {
+		mMinCodeSize = minCodeSize;
+		mCompressedData = data;
 	}
 }

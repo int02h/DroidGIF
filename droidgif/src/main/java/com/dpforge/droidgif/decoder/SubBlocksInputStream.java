@@ -2,7 +2,6 @@ package com.dpforge.droidgif.decoder;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 class SubBlocksInputStream {
