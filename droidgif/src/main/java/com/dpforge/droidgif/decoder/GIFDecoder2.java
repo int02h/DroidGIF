@@ -25,6 +25,7 @@ public class GIFDecoder2 {
 		checkHeader(bs);
 		readLogicalScreen(bs, image);
 		readData(bs, image);
+		image.finishDecoding();
 		return image;
 	}
 
