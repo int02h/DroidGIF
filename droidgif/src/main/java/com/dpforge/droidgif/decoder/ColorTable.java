@@ -2,7 +2,7 @@ package com.dpforge.droidgif.decoder;
 
 import java.io.IOException;
 
-public class ColorTable extends DecoderReader {
+public class ColorTable {
 	private final int mSize;
 	private final int[] mColors;
 
@@ -19,7 +19,6 @@ public class ColorTable extends DecoderReader {
 		return mColors[index];
 	}
 
-	@Override
 	void read(final BinaryStream stream) throws IOException, DecoderException {
 		for (int i = 0; i < mSize; ++i) {
 			int r = stream.readByte();
