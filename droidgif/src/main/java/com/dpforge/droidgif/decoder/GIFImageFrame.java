@@ -1,5 +1,7 @@
 package com.dpforge.droidgif.decoder;
 
+import java.io.InputStream;
+
 public class GIFImageFrame {
 	private int mLeft = 0;
 	private int mTop = 0;
@@ -12,7 +14,7 @@ public class GIFImageFrame {
 	private int mMinCodeSize;
 	private int mTransparentColorIndex = -1;
 
-	private byte[] mCompressedData;
+	private InputStream mCompressedDataStream;
 	private byte[] mColorIndices;
 
 	GIFImageFrame() {
@@ -66,13 +68,13 @@ public class GIFImageFrame {
 		return mColorTable.getColor(colorIndex);
 	}
 
-	byte[] compressedData() {
-		return mCompressedData;
+	InputStream compressedDataStream() {
+		return mCompressedDataStream;
 	}
 
 	void setDecoded(final byte[] colorIndices) {
 		mColorIndices = colorIndices;
-		mCompressedData = null;
+		mCompressedDataStream = null;
 	}
 
 	void setDisposalMethod(final DisposalMethod disposalMethod) {
@@ -101,8 +103,8 @@ public class GIFImageFrame {
 		mColorTable = colorTable;
 	}
 
-	void setCompressedData(final int minCodeSize, final byte[] data) {
+	void setCompressedData(final int minCodeSize, final InputStream dataStream) {
 		mMinCodeSize = minCodeSize;
-		mCompressedData = data;
+		mCompressedDataStream = dataStream;
 	}
 }

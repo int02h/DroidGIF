@@ -1,48 +1,43 @@
 package com.dpforge.droidgif.decoder;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-class SubBlocksInputStream {
+class SubBlocksInputStream extends InputStream {
 	private final BinaryStream mStream;
-	private int mBytesLeft = 0;
+	private final List<byte[]> mParts;
+	private int mPartIndex = 0;
+	private int mByteIndex = 0;
 
-	SubBlocksInputStream(final BinaryStream stream) {
+	SubBlocksInputStream(final BinaryStream stream, final int framePixelCount) {
+		int partsCount = (framePixelCount/255) + 1;
 		mStream = stream;
+		mParts = new ArrayList<>(partsCount);
 	}
 
-	void skipAll() throws IOException {
+	void prepare() throws IOException {
 		int size;
 		while ((size = mStream.readByte()) > 0) {
-			mStream.skipBytes(size);
+			mParts.add(mStream.readBytes(size));
 		}
 	}
 
-	int read() throws IOException {
-		if (mBytesLeft == 0) {
-			mBytesLeft = mStream.readByte();
-			if (mBytesLeft == 0)
-				return -1;
+	@Override
+	public int read() throws IOException {
+		if (mPartIndex >= mParts.size()) return -1;
+		byte[] part = mParts.get(mPartIndex);
+
+		if (mByteIndex >= part.length) return -1;
+		int b = part[mByteIndex] & 0xFF;
+
+		mByteIndex++;
+		if (mByteIndex == part.length) {
+			mByteIndex = 0;
+			mPartIndex++;
 		}
 
-		mBytesLeft--;
-		return mStream.readByte();
-	}
-
-	byte[] readAll() throws IOException {
-		final List<byte[]> parts = new ArrayList<>(16);
-		int size, totalSize = 0;
-		while ((size = mStream.readByte()) > 0) {
-			parts.add(mStream.readBytes(size));
-			totalSize += size;
-		}
-		final byte[] result = new byte[totalSize];
-		int index = 0;
-		for (byte[] part : parts) {
-			System.arraycopy(part, 0, result, index, part.length);
-			index += part.length;
-		}
-		return result;
+		return b;
 	}
 }

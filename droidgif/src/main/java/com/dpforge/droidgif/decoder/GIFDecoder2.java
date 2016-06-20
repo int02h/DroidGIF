@@ -112,11 +112,11 @@ public class GIFDecoder2 {
 		final String applicationId = stream.readASCIIString(8);
 		// noinspection unused
 		final String applicationCode = stream.readASCIIString(3);
-		new SubBlocksInputStream(stream).skipAll();
+		skipSubBlocks(stream);
 	}
 
 	private static void readCommentExtension(final BinaryStream stream) throws IOException {
-		new SubBlocksInputStream(stream).skipAll();
+		skipSubBlocks(stream);
 	}
 
 	private static void readGraphicControlExtension(final BinaryStream stream, final GIFImageFrame frame)
@@ -178,9 +178,17 @@ public class GIFDecoder2 {
 		}
 
 		final int minCodeSize = stream.readByte();
-		final byte[] compressedData = new SubBlocksInputStream(stream).readAll();
+		final SubBlocksInputStream compressedData = new SubBlocksInputStream(stream, frame.width()*frame.height());
+		compressedData.prepare();
 		frame.setCompressedData(minCodeSize, compressedData);
 
 		image.addFrame(frame);
+	}
+
+	private static void skipSubBlocks(final BinaryStream stream) throws IOException {
+		int size;
+		while ((size = stream.readByte()) > 0) {
+			stream.skipBytes(size);
+		}
 	}
 }

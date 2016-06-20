@@ -2,7 +2,6 @@ package com.dpforge.droidgif.decoder;
 
 import com.dpforge.droidgif.decoder.lzw.LZW;
 
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -66,8 +65,7 @@ public class FrameDecoder {
 						final GIFImageFrame frame = mFrameToDecode.take();
 						if (frame != null) {
 							final byte[] colorIndices = new byte[frame.width()*frame.height()];
-							lzw.decompress(new ByteArrayInputStream(frame.compressedData()),
-									frame.minCodeSize() + 1, colorIndices);
+							lzw.decompress(frame.compressedDataStream(), frame.minCodeSize() + 1, colorIndices);
 							frame.setDecoded(colorIndices);
 							synchronized (mDecodedFrames) {
 								mDecodedFrames.add(frame);
