@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class GIFDecoder2 {
+public class GIFDecoder {
 	private final static String GIF_SIGNATURE = "GIF";
 	private final static Set<String> SUPPORTED_VERSIONS = new HashSet<>(Arrays.asList("87a", "89a"));
 	private final static int GIF_TRAILER = 0x3B;
@@ -16,7 +16,7 @@ public class GIFDecoder2 {
 	private final static int EXTENSION_COMMENT = 0xFE;
 	private final static int IMAGE_DESCRIPTOR_LABEL = 0x2C;
 
-	private GIFDecoder2() {
+	private GIFDecoder() {
 	}
 
 	public static GIFImage decode(final InputStream is) throws IOException, DecoderException {

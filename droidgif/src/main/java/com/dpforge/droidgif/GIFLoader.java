@@ -6,7 +6,7 @@ import android.os.Looper;
 import android.support.annotation.RawRes;
 
 import com.dpforge.droidgif.decoder.DecoderException;
-import com.dpforge.droidgif.decoder.GIFDecoder2;
+import com.dpforge.droidgif.decoder.GIFDecoder;
 import com.dpforge.droidgif.decoder.GIFImage;
 
 import java.io.BufferedInputStream;
@@ -47,7 +47,7 @@ final class GIFLoader {
 					bis = (is instanceof BufferedInputStream)
 							? (BufferedInputStream) is
 							: new BufferedInputStream(is);
-					final GIFImage image = GIFDecoder2.decode(bis);
+					final GIFImage image = GIFDecoder.decode(bis);
 					invokeListener(listener, image, null);
 				} catch (IOException | DecoderException ex) {
 					invokeListener(listener, null, ex);
