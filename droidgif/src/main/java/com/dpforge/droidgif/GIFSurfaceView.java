@@ -2,6 +2,8 @@ package com.dpforge.droidgif;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.RawRes;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
@@ -69,6 +71,12 @@ public class GIFSurfaceView extends SurfaceView implements GIFView {
 	private void init() {
 		getHolder().addCallback(new SurfaceHolderCallback());
 		mRenderThread = new RenderThread(new CanvasHolder(getHolder()));
+
+		Drawable bg = getBackground();
+		if (bg instanceof ColorDrawable) {
+			ColorDrawable cd = (ColorDrawable) bg;
+			mRenderThread.setBackgroundColor(cd.getColor());
+		}
 	}
 
 	private class SurfaceHolderCallback implements SurfaceHolder.Callback {
@@ -80,7 +88,7 @@ public class GIFSurfaceView extends SurfaceView implements GIFView {
 
 		@Override
 		public void surfaceChanged(final SurfaceHolder holder, final int format, final int width, final int height) {
-
+			mRenderThread.setViewSize(width, height);
 		}
 
 		@Override

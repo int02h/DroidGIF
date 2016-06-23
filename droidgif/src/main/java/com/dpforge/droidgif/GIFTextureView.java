@@ -3,6 +3,8 @@ package com.dpforge.droidgif;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.SurfaceTexture;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.RawRes;
 import android.util.AttributeSet;
 import android.view.TextureView;
@@ -74,6 +76,12 @@ public class GIFTextureView extends TextureView implements GIFView {
 	private void init() {
 		setSurfaceTextureListener(new SurfaceListener());
 		mRenderThread = new RenderThread(new CanvasHolder());
+
+		Drawable bg = getBackground();
+		if (bg instanceof ColorDrawable) {
+			ColorDrawable cd = (ColorDrawable) bg;
+			mRenderThread.setBackgroundColor(cd.getColor());
+		}
 	}
 
 	private class SurfaceListener implements TextureView.SurfaceTextureListener {
@@ -82,11 +90,12 @@ public class GIFTextureView extends TextureView implements GIFView {
 		public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
 			mRenderThread.setRunning(true);
 			mRenderThread.start();
+			mRenderThread.setViewSize(width, height);
 		}
 
 		@Override
 		public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-
+			mRenderThread.setViewSize(width, height);
 		}
 
 		@Override
