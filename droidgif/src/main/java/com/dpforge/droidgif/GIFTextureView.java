@@ -1,31 +1,14 @@
 package com.dpforge.droidgif;
 
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.SurfaceTexture;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.RawRes;
 import android.util.AttributeSet;
 import android.view.TextureView;
 
-import com.dpforge.droidgif.decoder.GIFImage;
-
 import java.net.URL;
 
 public class GIFTextureView extends TextureView implements GIFView {
-	private RenderThread mRenderThread;
-	private GIFImage mImage;
-
-	private final GIFLoader.OnLoadListener mLoadListener = new GIFLoader.OnLoadListener() {
-		@Override
-		public void onLoad(final GIFImage image, final Exception ex) {
-			mImage = image;
-			mRenderThread.executeCommand(RenderThread.Command.SET_IMAGE, image);
-			requestLayout();
-			invalidate();
-		}
-	};
+	private final GIFViewHelper<GIFTextureView> mHelper = GIFViewHelper.create(this);
 
 	public GIFTextureView(Context context) {
 		super(context);
@@ -44,90 +27,36 @@ public class GIFTextureView extends TextureView implements GIFView {
 
 	@Override
 	protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
-		ViewMeasurer.MeasureResult result = ViewMeasurer.measure(mImage, widthMeasureSpec,  heightMeasureSpec);
+		ViewMeasurer.MeasureResult result = ViewMeasurer.measure(mHelper.getImage(), widthMeasureSpec,  heightMeasureSpec);
 		setMeasuredDimension(result.width, result.height);
 	}
 
 	@Override
 	public void setRawResource(@RawRes int resId) {
-		GIFLoader.getInstance().loadRawResource(getContext(), resId, mLoadListener);
+		mHelper.setRawResource(resId);
 	}
 
 	@Override
 	public void setImageURL(final URL url) {
-		GIFLoader.getInstance().loadURL(url, mLoadListener);
+		mHelper.setImageURL(url);
 	}
 
 	@Override
 	public void play() {
-		mRenderThread.executeCommand(RenderThread.Command.PLAY);
+		mHelper.play();
 	}
 
 	@Override
 	public void stop() {
-		mRenderThread.executeCommand(RenderThread.Command.STOP);
+		mHelper.stop();
 	}
 
 	@Override
 	public void pause() {
-		mRenderThread.executeCommand(RenderThread.Command.PAUSE);
+		mHelper.pause();
 	}
 
 	private void init() {
-		setSurfaceTextureListener(new SurfaceListener());
-		mRenderThread = new RenderThread(new CanvasHolder());
-
-		Drawable bg = getBackground();
-		if (bg instanceof ColorDrawable) {
-			ColorDrawable cd = (ColorDrawable) bg;
-			mRenderThread.setBackgroundColor(cd.getColor());
-		}
-	}
-
-	private class SurfaceListener implements TextureView.SurfaceTextureListener {
-
-		@Override
-		public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-			mRenderThread.setRunning(true);
-			mRenderThread.start();
-			mRenderThread.setViewSize(width, height);
-		}
-
-		@Override
-		public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-			mRenderThread.setViewSize(width, height);
-		}
-
-		@Override
-		public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-			boolean retry = true;
-			mRenderThread.setRunning(false);
-			while (retry) {
-				try {
-					mRenderThread.join();
-					retry = false;
-				} catch (InterruptedException ignored) {
-
-				}
-			}
-			return true;
-		}
-
-		@Override
-		public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-
-		}
-	}
-
-	private class CanvasHolder implements RenderThread.CanvasHolder {
-		@Override
-		public Canvas lockCanvas() {
-			return GIFTextureView.this.lockCanvas();
-		}
-
-		@Override
-		public void unlockCanvasAndPost(final Canvas canvas) {
-			GIFTextureView.this.unlockCanvasAndPost(canvas);
-		}
+		mHelper.init();
 	}
 }
